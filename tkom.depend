@@ -1,0 +1,20 @@
+# depslib dependency file v1.0
+1554158295 source:/home/krzyn/Documents/C++/TKOM/TKOMproject/main.cpp
+	<iostream>
+	"lexer.hpp"
+
+1554145665 /home/krzyn/Documents/C++/TKOM/TKOMproject/source.hpp
+	<fstream>
+
+1554145297 /home/krzyn/Documents/C++/TKOM/TKOMproject/lexer.hpp
+	"source.hpp"
+	"token.hpp"
+
+1554145935 source:/home/krzyn/Documents/C++/TKOM/TKOMproject/lexer.cpp
+	"lexer.hpp"
+
+1554158337 /home/krzyn/Documents/C++/TKOM/TKOMproject/token.hpp
+
+1554145673 source:/home/krzyn/Documents/C++/TKOM/TKOMproject/source.cpp
+	"source.hpp"
+
