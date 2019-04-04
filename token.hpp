@@ -11,8 +11,41 @@ class Token
             Double,
             Bool,
 
+            If,
+            Else,
+            While,
+            Class,
+            Public,
+            Private,
+            Return,
+
+            Equals,
+            GEqual,
+            LEqual,
+            Greater,
+            Less,
+            And,
+            Or,
+            Not,
+
+            Assignment,
+            Multiplication,
+            Division,
+            Plus,
+            Minus,
+            Modulus,
+
+            OpenBracket,
+            CloseBracket,
+            OpenCurly,
+            CloseCurly,
+
+            Dot,
+            Comma,
             Semicolon,
+
             Eof,
+            Broken
         };
 
     private:

@@ -23,6 +23,8 @@ class FileSource : public Source
         char character = '\0';
 
     public:
+        bool isEOF() { return file.eof(); }
+
         char getCharacter() const { return character; }
         char nextChar();
 

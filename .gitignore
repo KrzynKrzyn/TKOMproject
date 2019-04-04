@@ -1,6 +1,8 @@
 bin/
 obj/
 *.cbp
+*.layout
+*.depend
 
 # Prerequisites
 *.d
