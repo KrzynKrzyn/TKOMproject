@@ -20,6 +20,7 @@ class Token
             Return,
 
             Equals,
+            NEqual,
             GEqual,
             LEqual,
             Greater,

@@ -2,6 +2,10 @@
 
 #include "lexer.hpp"
 
+//introduce token::eof instead of token::broken
+//do something with awful page-long switches and ifs
+//implement token tostring()
+
 using namespace std;
 
 int main()
@@ -18,10 +22,10 @@ int main()
 
     cout << test << endl;*/
 
-    Lexer lex("example.txt");
+    Lexer lex("example2.txt");
 
     Token t = lex.getToken();
-    while(t.getType() != Token::Type::Broken)
+    while(t.getType() != Token::Type::Broken && t.getType() != Token::Type::Eof)
     {
         t = lex.getToken();
     }

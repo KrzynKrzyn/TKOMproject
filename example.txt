@@ -1,3 +1,13 @@
-51.28 	48			35.1	2.
-52.48615	  
-1.
+class Example{
+	int a, b;
+	bool c;
+
+	public:
+	void func()
+	{
+	  if(c != false)
+	  a = b *5+ c;
+	  else
+	  c = true;
+	}
+};

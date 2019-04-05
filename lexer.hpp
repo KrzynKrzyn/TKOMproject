@@ -2,7 +2,7 @@
 #define LEXER_HPP_INCLUDED
 
 #include <ctype.h>
-#include <unordered_map>
+#include <string>
 #include "source.hpp"
 #include "token.hpp"
 
@@ -10,7 +10,8 @@ class Lexer
 {
     private:
         FileSource source;
-        std::string keywords[9] =
+
+        /*std::string keywords[9] =
         {
             "if", "else", "while",
             "class", "public:", "private:",
@@ -20,17 +21,17 @@ class Lexer
         char special[19] =
         {
             '>', '<', '=', '*', '/', '+', '-', ';', '(', ')', '{', '}', ',', '.', '!', '%', '&', '|'
-        };
+        };*/
 
         char skipWhitespaces()
         {
-            char c;
-            while(!source.isEOF() && isspace(c = source.getCharacter())) source.nextChar();
-            return c;
+            while(!source.isEOF() && isspace(source.getCharacter())) source.nextChar();
+            return source.getCharacter();
         }
 
         Token getNumber();
         Token getIdent();
+        Token getSpecial();
 
     public:
         Token getToken();
@@ -44,12 +45,12 @@ class Lexer
         {
             return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c == '_');
         }
-
+/*
         bool isSpecial(char c) const
         {
             for(int i=0; i<19; ++i) if(c == special[i]) return true;
             return false;
-        }
+        }*/
 
         Lexer(std::string filename):
             source(filename) { source.nextChar(); }
