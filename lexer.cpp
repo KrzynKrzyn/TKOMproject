@@ -94,6 +94,7 @@ Token Lexer::getSpecial()
         case '/': return Token(Token::Type::Division, line, pos); break;
         case '%': return Token(Token::Type::Modulus, line, pos); break;
         case ';': return Token(Token::Type::Semicolon, line, pos); break;
+        case ':': return Token(Token::Type::Colon, line, pos); break;
         case '(': return Token(Token::Type::OpenBracket, line, pos); break;
         case ')': return Token(Token::Type::CloseBracket, line, pos); break;
         case '{': return Token(Token::Type::OpenCurly, line, pos); break;

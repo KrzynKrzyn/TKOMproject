@@ -44,6 +44,7 @@ class Token
             Dot,
             Comma,
             Semicolon,
+            Colon,
 
             Eof,
             Broken

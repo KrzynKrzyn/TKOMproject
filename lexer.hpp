@@ -3,6 +3,7 @@
 
 #include <ctype.h>
 #include <string>
+#include <unordered_map>
 #include "source.hpp"
 #include "token.hpp"
 
@@ -11,13 +12,19 @@ class Lexer
     private:
         FileSource source;
 
-        /*std::string keywords[9] =
+        std::unordered_map<std::string, Token::Type> keywords =
         {
-            "if", "else", "while",
-            "class", "public:", "private:",
-            "return", "true", "false"
+            {"if",      Token::Type::If},
+            {"else",    Token::Type::Else},
+            {"while",   Token::Type::While},
+            {"class",   Token::Type::Class},
+            {"return",  Token::Type::Return},
+            {"true",    Token::Type::Bool},
+            {"false",   Token::Type::Bool},
+            {"private", Token::Type::Private},
+            {"public",  Token::Type::Public},
         };
-
+/*
         char special[19] =
         {
             '>', '<', '=', '*', '/', '+', '-', ';', '(', ')', '{', '}', ',', '.', '!', '%', '&', '|'

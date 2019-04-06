@@ -2,7 +2,6 @@
 
 #include "lexer.hpp"
 
-//introduce token::eof instead of token::broken
 //do something with awful page-long switches and ifs
 //implement token tostring()
 
