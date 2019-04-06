@@ -1,11 +1,14 @@
 #ifndef SOURCE_HPP_INCLUDED
 #define SOURCE_HPP_INCLUDED
 
+#include <iostream>
 #include <fstream>
 
 class Source
 {
     public:
+        virtual bool isEOF() const = 0;
+
         virtual char getCharacter() const = 0;
         virtual char nextChar() = 0;
 
@@ -23,7 +26,7 @@ class FileSource : public Source
         char character = '\0';
 
     public:
-        bool isEOF() { return file.eof(); }
+        bool isEOF() const { return file.eof(); }
 
         char getCharacter() const { return character; }
         char nextChar();

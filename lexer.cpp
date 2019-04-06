@@ -65,7 +65,7 @@ Token Lexer::getNumber()
         i += (c - '0');
     }
 
-    if(isLetter(c)) return Token(Token::Type::Broken, line, pos);
+    if(isLetter(c)) { error_manager.handleError(Error(Error::Type::Bad_identifier, line, pos)); return Token(Token::Type::Broken, line, pos); }
     if(c != '.') return Token(Token::Type::Int, line, pos, i);
 
     double d = 0, j = 10;
@@ -76,7 +76,7 @@ Token Lexer::getNumber()
         j *= 10;
     }
 
-    if(isLetter(c)) return Token(Token::Type::Broken, line, pos);
+    if(isLetter(c)) { error_manager.handleError(Error(Error::Type::Bad_identifier, line, pos)); return Token(Token::Type::Broken, line, pos); }
     return Token(Token::Type::Double, line, pos, i+d);
 }
 
@@ -145,6 +145,7 @@ Token Lexer::getSpecial()
             else return Token(Token::Type::Broken, line, pos); break;
     }
 
+    error_manager.handleError(Error(Error::Type::Unknown_symbol, line, pos));
     return Token(Token::Type::Broken, line, pos);
 }
 

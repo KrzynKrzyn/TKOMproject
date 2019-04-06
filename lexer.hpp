@@ -6,11 +6,14 @@
 #include <unordered_map>
 #include "source.hpp"
 #include "token.hpp"
+#include "error_manager.hpp"
+#include "error.hpp"
 
 class Lexer
 {
     private:
-        FileSource source;
+        Source &source;
+        ErrorManager &error_manager;
 
         std::unordered_map<std::string, Token::Type> keywords =
         {
@@ -29,6 +32,15 @@ class Lexer
         {
             '>', '<', '=', '*', '/', '+', '-', ';', '(', ')', '{', '}', ',', '.', '!', '%', '&', '|'
         };*/
+        bool isDigit(char c) const
+        {
+            return c >= '0' && c <= '9';
+        }
+
+        bool isLetter(char c) const
+        {
+            return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c == '_');
+        }
 
         char skipWhitespaces()
         {
@@ -43,15 +55,7 @@ class Lexer
     public:
         Token getToken();
 
-        bool isDigit(char c) const
-        {
-            return c >= '0' && c <= '9';
-        }
 
-        bool isLetter(char c) const
-        {
-            return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c == '_');
-        }
 /*
         bool isSpecial(char c) const
         {
@@ -59,8 +63,8 @@ class Lexer
             return false;
         }*/
 
-        Lexer(std::string filename):
-            source(filename) { source.nextChar(); }
+        Lexer(Source& s, ErrorManager &em):
+            source(s), error_manager(em) { source.nextChar(); }
 };
 
 #endif // LEXER_HPP_INCLUDED
