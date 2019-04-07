@@ -4,6 +4,9 @@
 
 //do something with awful page-long switches and ifs
 //implement token tostring()
+//cleanup include mess
+//error_severity -> map instead of unordered_map
+//error handling -> warnings
 
 using namespace std;
 

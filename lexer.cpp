@@ -19,16 +19,8 @@ Token Lexer::getToken()
         else if(initial.getName() == "return") return Token(Token::Type::Return, initial.getLine(), initial.getPosition());
         else if(initial.getName() == "true") return Token(Token::Type::Bool, initial.getLine(), initial.getPosition(), true);
         else if(initial.getName() == "false") return Token(Token::Type::Bool, initial.getLine(), initial.getPosition(), false);
-        else if(initial.getName() == "private" && source.getCharacter() == ':')
-        {
-            source.nextChar();
-            return Token(Token::Type::Private, initial.getLine(), initial.getPosition());
-        }
-        else if(initial.getName() == "public" && source.getCharacter() == ':')
-        {
-            source.nextChar();
-            return Token(Token::Type::Public, initial.getLine(), initial.getPosition());
-        }
+        else if(initial.getName() == "private") return Token(Token::Type::Private, initial.getLine(), initial.getPosition());
+        else if(initial.getName() == "public") return Token(Token::Type::Public, initial.getLine(), initial.getPosition());
 
         return initial;
     }

@@ -1,7 +1,6 @@
 #ifndef SOURCE_HPP_INCLUDED
 #define SOURCE_HPP_INCLUDED
 
-#include <iostream>
 #include <fstream>
 
 class Source
