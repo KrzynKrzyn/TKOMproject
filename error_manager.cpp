@@ -1,5 +1,3 @@
-
-//#include <unordered_map>
 #include "error_manager.hpp"
 
 std::unordered_map<Error::Type, std::string, EnumClassHash> ErrorManager::error_message =

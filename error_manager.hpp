@@ -1,6 +1,7 @@
 #ifndef ERROR_MANAGER_HPP_INCLUDED
 #define ERROR_MANAGER_HPP_INCLUDED
 
+#include <unordered_map>
 #include <queue>
 #include "error.hpp"
 

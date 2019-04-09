@@ -1,6 +1,6 @@
 #include "error.hpp"
 
-std::unordered_map<Error::Type, Error::Severity, EnumClassHash> Error::error_level =
+std::map<Error::Type, Error::Severity> Error::error_level =
 {
     //{Error::Type::Unknown_symbol, Error::Severity::Warning}
 };

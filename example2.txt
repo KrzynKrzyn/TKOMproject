@@ -1,1 +1,2 @@
-int foo(85,true, 	$9.5);
+int foo(85,true, 	9.5);
+	bool abcd=false;

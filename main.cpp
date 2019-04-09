@@ -5,7 +5,6 @@
 //do something with awful page-long switches and ifs
 //implement token tostring()
 //cleanup include mess
-//error_severity -> map instead of unordered_map
 //error handling -> warnings
 
 using namespace std;
@@ -24,7 +23,7 @@ int main()
 
     cout << test << endl;*/
 
-    FileSource source("example2.txt");
+    FileSource source("example.txt");
     ErrorManager err_man;
     Lexer lex(source, err_man);
 
@@ -35,7 +34,10 @@ int main()
         catch(std::runtime_error e)
         {
             cout << e.what() << endl;
+            return 1;
         }
+
+        cout << t.toString() << endl;
     }
 
     return 0;

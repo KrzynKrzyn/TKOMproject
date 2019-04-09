@@ -5,7 +5,7 @@ class Example{
 	public:
 	void func()
 	{
-	  if(c != false)
+	  if(c!= false)
 	  a = b *5+ c;
 	  else
 	  c = true;

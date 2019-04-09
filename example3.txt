@@ -1,0 +1,15 @@
+class example_class{
+	public:
+		int a, b;
+		void foo()
+		{
+			a=b;
+   b= 5;
+		}
+
+	private:
+	int adder(int bcd)
+	{
+		return a + b*bcd;
+	}
+};

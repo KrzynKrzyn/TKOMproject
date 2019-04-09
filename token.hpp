@@ -1,6 +1,8 @@
 #ifndef TOKEN_HPP_INCLUDED
 #define TOKEN_HPP_INCLUDED
 
+#include <map>
+
 class Token
 {
     public:
@@ -63,6 +65,8 @@ class Token
             bool boolean;
         } value;
 
+        static std::map<Token::Type, std::string> type_names;
+
     public:
         Token(Type type_, int line_, int position_)                 : type(type_), line(line_), position(position_) {}
         Token(Type type, int line, int position, std::string val)   : Token(type, line, position) { name = val; }
@@ -78,6 +82,10 @@ class Token
         int getInt() const { return value.integer; }
         double getDouble() const { return value.floating; }
         bool getBool() const { return value.boolean; }
+
+        std::string toString();
 };
+
+
 
 #endif // TOKEN_HPP_INCLUDED

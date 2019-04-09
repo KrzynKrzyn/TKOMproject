@@ -1,7 +1,7 @@
 #ifndef ERROR_HPP_INCLUDED
 #define ERROR_HPP_INCLUDED
 
-#include <unordered_map>
+#include <map>
 
 struct EnumClassHash
 {
@@ -32,7 +32,7 @@ class Error
         int line;
         int position;
 
-        static std::unordered_map<Error::Type, Error::Severity, EnumClassHash> error_level;
+        static std::map<Error::Type, Error::Severity> error_level;
 
     public:
         Error(Type type_, int line_, int position_): type(type_), line(line_), position(position_) {}
