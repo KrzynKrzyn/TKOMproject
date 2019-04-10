@@ -17,6 +17,7 @@ class Error
     public:
         enum class Type
         {
+            File_non_existent,
             Bad_identifier,
             Unknown_symbol,
         };
@@ -24,6 +25,7 @@ class Error
         enum class Severity
         {
             Critical,
+            Ordinary,
             Warning
         };
 

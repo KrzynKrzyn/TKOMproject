@@ -9,7 +9,7 @@
 
 using namespace std;
 
-int main()
+int main(int argc, char* argv[])
 {/*
     FileSource blob("example.txt");
 
@@ -23,8 +23,16 @@ int main()
 
     cout << test << endl;*/
 
-    FileSource source("example.txt");
+    if(argc != 2)
+    {
+        cout << "Usage:" << endl;
+        cout << ' ' << argv[0] << " filename" << endl;
+        return 1;
+    }
+    std::string filename(argv[1]);
+
     ErrorManager err_man;
+    FileSource source(filename, err_man);
     Lexer lex(source, err_man);
 
     Token t = lex.getToken();

@@ -3,6 +3,7 @@
 std::map<Error::Type, Error::Severity> Error::error_level =
 {
     //{Error::Type::Unknown_symbol, Error::Severity::Warning}
+    {Error::Type::File_non_existent, Error::Severity::Critical}
 };
 
 Error::Severity Error::getSeverity() const

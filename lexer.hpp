@@ -51,7 +51,7 @@ class Lexer
     public:
         Token getToken();
 
-        Lexer(Source& s, ErrorManager &em):
+        Lexer(Source &s, ErrorManager &em):
             source(s), error_manager(em) { source.nextChar(); }
 };
 
