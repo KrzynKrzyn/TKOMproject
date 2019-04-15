@@ -68,6 +68,7 @@ class Token
         static std::map<Token::Type, std::string> type_names;
 
     public:
+        Token()                                                     : type(Type::Broken), line(0), position(0) {}
         Token(Type type_, int line_, int position_)                 : type(type_), line(line_), position(position_) {}
         Token(Type type, int line, int position, std::string val)   : Token(type, line, position) { name = val; }
         Token(Type type, int line, int position, int val)           : Token(type, line, position) { value.integer = val; }

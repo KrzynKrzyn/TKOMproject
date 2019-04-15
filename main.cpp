@@ -35,8 +35,8 @@ int main(int argc, char* argv[])
     FileSource source(filename, err_man);
     Lexer lex(source, err_man);
 
-    Token t = lex.getToken();
-    while(t.getType() != Token::Type::Broken && t.getType() != Token::Type::Eof)
+    Token t;// = lex.getToken();
+    do
     {
         try {t = lex.getToken();}
         catch(std::runtime_error e)
@@ -47,6 +47,7 @@ int main(int argc, char* argv[])
 
         cout << t.toString() << endl;
     }
+    while(t.getType() != Token::Type::Broken && t.getType() != Token::Type::Eof);
 
     return 0;
 }
