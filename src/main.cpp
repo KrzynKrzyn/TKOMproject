@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "lexer.hpp"
+#include "headers/lexer.hpp"
 
 //do something with awful page-long switches and ifs
 //implement token tostring()

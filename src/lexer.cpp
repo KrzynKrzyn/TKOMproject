@@ -1,4 +1,4 @@
-#include "lexer.hpp"
+#include "headers/lexer.hpp"
 
 Token Lexer::getToken()
 {

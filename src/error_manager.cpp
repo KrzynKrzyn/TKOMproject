@@ -1,4 +1,4 @@
-#include "error_manager.hpp"
+#include "headers/error_manager.hpp"
 
 std::unordered_map<Error::Type, std::string, EnumClassHash> ErrorManager::error_message =
     {
@@ -26,4 +26,4 @@ void ErrorManager::handleError(Error err)
     throw std::runtime_error("Line: " + std::to_string(err.getLine()) +
                              "\tPosition: " + std::to_string(err.getPosition()) +
                              "\tError: " + getMessage(err));
-};
+}

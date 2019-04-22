@@ -1,4 +1,4 @@
-#include "error.hpp"
+#include "headers/error.hpp"
 
 std::map<Error::Type, Error::Severity> Error::error_level =
 {

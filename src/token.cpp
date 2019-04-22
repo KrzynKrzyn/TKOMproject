@@ -1,4 +1,4 @@
-#include "token.hpp"
+#include "headers/token.hpp"
 
 std::map<Token::Type, std::string> Token::type_names =
 {
