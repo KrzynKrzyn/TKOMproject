@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "headers/lexer.hpp"
+#include "headers/parser.hpp"
 
 //do something with awful page-long switches and ifs
 //implement token tostring()
@@ -34,7 +34,8 @@ int main(int argc, char* argv[])
     ErrorManager err_man;
     FileSource source(filename, err_man);
     Lexer lex(source, err_man);
-
+    Parser par(lex, err_man);
+/*
     Token t;// = lex.getToken();
     do
     {
@@ -47,7 +48,15 @@ int main(int argc, char* argv[])
 
         cout << t.toString() << endl;
     }
-    while(t.getType() != Token::Type::Broken && t.getType() != Token::Type::Eof);
+    while(t.getType() != Token::Type::Broken && t.getType() != Token::Type::Eof);*/
+    
+    try {par.parse();}
+    catch(std::runtime_error e)
+    {
+        cout << e.what() << endl;
+        return 1;
+    }
+    
 
     return 0;
 }

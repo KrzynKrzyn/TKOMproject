@@ -1,0 +1,5 @@
+class ex
+{
+	public:
+	int c, g, h;
+}

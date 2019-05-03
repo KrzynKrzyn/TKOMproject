@@ -5,6 +5,7 @@ std::unordered_map<Error::Type, std::string, EnumClassHash> ErrorManager::error_
         {Error::Type::File_non_existent, "File doesn\'t exist!"},
         {Error::Type::Bad_identifier, "Invalid identifier!"},
         {Error::Type::Unknown_symbol, "Unknown symbol!"},
+        {Error::Type::Unexpected_token, "Unexpected token!"}
     };
 
 std::string ErrorManager::getMessage(Error err) const

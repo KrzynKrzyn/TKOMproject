@@ -20,6 +20,7 @@ class Error
             File_non_existent,
             Bad_identifier,
             Unknown_symbol,
+            Unexpected_token,
         };
 
         enum class Severity
