@@ -45,7 +45,7 @@ void Parser::acceptToken()
 void Parser::acceptToken(Token::Type type)
 {
     Token t = peekToken();
-
+std::cout << "DEBUG: " << '\t' << t.toString() << '\t' << Token(type,0,0).toString() << std::endl;
     if(t.getType() == type) tokens.pop_front();
     else error_manager.handleError(Error(Error::Type::Unexpected_token, t.getLine(), t.getPosition()));
 }
@@ -53,7 +53,7 @@ void Parser::acceptToken(Token::Type type)
 void Parser::acceptToken(std::set<Token::Type> types)
 {
     Token t = peekToken();
-
+std::cout << "DEBUG: " << '\t' << t.toString() << std::endl;
     if(expectToken(types,0)) tokens.pop_front();
     else error_manager.handleError(Error(Error::Type::Unexpected_token, t.getLine(), t.getPosition()));
 }
@@ -100,10 +100,10 @@ void Parser::s_function()
             acceptToken(Token::Type::Ident);
             acceptToken(Token::Type::Ident);
         }
-
-        acceptToken(Token::Type::CloseBracket);
-        block_st();
     }
+
+    acceptToken(Token::Type::CloseBracket);
+    block_st();
 }
 
 void Parser::comp_expr()
@@ -117,8 +117,9 @@ void Parser::comp_expr()
 
 void Parser::expr()
 {
+    std::cout << "TODO1" << std::endl;
     simple_expr();
-    std::cout << "TODO" << std::endl;
+    std::cout << "TODO2" << std::endl;
 }
 
 void Parser::assignment()
@@ -178,7 +179,7 @@ void Parser::function()
 {
     c_ident();
     acceptToken(Token::Type::OpenBracket);
-
+/*
     if(expectToken(Token::Type::Ident, 0))
     {
         c_ident();
@@ -188,9 +189,19 @@ void Parser::function()
             acceptToken(Token::Type::Comma);
             c_ident();
         }
+    }*/
+    while(!expectToken(Token::Type::CloseBracket, 0))
+    {
+        expr();
 
-        acceptToken(Token::Type::CloseBracket);
+        while(expectToken(Token::Type::Comma, 0))
+        {
+            acceptToken(Token::Type::Comma);
+            expr();
+        }
     }
+
+    acceptToken(Token::Type::CloseBracket);
 }
 
 void Parser::bool_ele() //TBD
@@ -198,12 +209,18 @@ void Parser::bool_ele() //TBD
     if(expectToken(Token::Type::Not,0)) acceptToken(Token::Type::Not);
 
     if(expectToken(Token::Type::Bool, 0)) acceptToken(Token::Type::Bool);
-
-    int i = 0;
-    while(expectToken(Token::Type::Ident, i++))
+    else
     {
-        if(expectToken(Token::Type::OpenBracket, i)) function();
-        else if(!expectToken(Token::Type::Dot, i++)) c_ident();
+        comp_expr();
+
+        /*int i = 0;
+        while(expectToken(Token::Type::Ident, i++)) //TODO
+        {
+            if(expectToken(Token::Type::OpenBracket, i)) function();
+            else if(!expectToken(Token::Type::Dot, i++)) c_ident();
+            else continue;
+            break;
+        }*/
     }
 }
 
@@ -234,12 +251,16 @@ void Parser::arithm_ele()
     if(expectToken(sign,0)) acceptToken(sign);
 
     if(expectToken(const_arithm, 0)) acceptToken(const_arithm);
-
-    int i = 0;
-    while(expectToken(Token::Type::Ident, i++))
+    else
     {
-        if(expectToken(Token::Type::OpenBracket, i)) function();
-        else if(!expectToken(Token::Type::Dot, i++)) c_ident();
+        int i = 0;
+        while(expectToken(Token::Type::Ident, i++))//TODO
+        {
+            if(expectToken(Token::Type::OpenBracket, i)) function();
+            else if(!expectToken(Token::Type::Dot, i++)) c_ident();
+            else continue;
+            break;
+        }
     }
 }
 
@@ -286,6 +307,8 @@ void Parser::simple_st()
         if(expectToken(Token::Type::Assignment, i)) assignment();
         else if(expectToken(Token::Type::OpenBracket, i)) s_simple_expr();
         else if(!expectToken(Token::Type::Dot, i++)) s_simple_expr();
+        else continue;
+        break;
     }
 
     //throw error
@@ -316,10 +339,10 @@ void Parser::s_constructor()
             acceptToken(Token::Type::Ident);
             acceptToken(Token::Type::Ident);
         }
-
-        acceptToken(Token::Type::CloseBracket);
-        block_st();
     }
+
+    acceptToken(Token::Type::CloseBracket);
+    block_st();
 }
 
 void Parser::private_part()

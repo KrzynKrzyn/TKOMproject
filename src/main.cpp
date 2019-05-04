@@ -7,6 +7,8 @@
 //cleanup include mess
 //error handling -> warnings
 
+//arithm_ele and bool_ele -> to be changed
+
 using namespace std;
 
 int main(int argc, char* argv[])
@@ -46,10 +48,10 @@ int main(int argc, char* argv[])
             return 1;
         }
 
-        cout << t.toString() << endl;
+        cout << t.getLine() << ':' << t.getPosition() << " -- " << t.toString() << endl;
     }
     while(t.getType() != Token::Type::Broken && t.getType() != Token::Type::Eof);*/
-    
+
     try {par.parse();}
     catch(std::runtime_error e)
     {

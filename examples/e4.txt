@@ -2,4 +2,39 @@ class ex
 {
 	public:
 	int c, g, h;
+};
+
+bool global;
+
+class bde
+{
+	private:
+	bde(double c)
+	{
+		while(c+10 >= a && c-10 < a || global == func(1.52, ex.g))
+		{i=i-1;
+		c = c / i;}
+	}
+
+	public:
+	bool func(int c, double g)
+{
+	if(c >= 5 && c != g)
+		return 5+c*g;
+	else
+{	
+	c = g *15;
+	g = 18 - 5 * 9.5;
+	return c % g;
+}
+}
+};
+
+int main()
+{
+	bde e;
+
+	e = bde(5.08);
+e.func(4,85.8);
+	return 0;
 }
