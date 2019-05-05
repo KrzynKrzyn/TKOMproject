@@ -42,6 +42,7 @@ class Parser
         void s_variable();
         void s_function();
         void comp_expr();
+        void comp_expr2();
         void expr();
         void assignment();
         void return_st();

@@ -106,6 +106,17 @@ void Parser::s_function()
     block_st();
 }
 
+void Parser::comp_expr2()
+{
+    simple_expr();
+
+    if(expectToken(rel_operators, 0))
+    {
+        acceptToken(rel_operators);
+        simple_expr();
+    }
+}
+
 void Parser::comp_expr()
 {
     simple_expr();
@@ -138,7 +149,7 @@ void Parser::return_st()
 {
     acceptToken(Token::Type::Return);
 
-    expr(); //optional
+    if(!expectToken(Token::Type::Semicolon, 0)) expr(); //optional
 
     acceptToken(Token::Type::Semicolon);
 }
@@ -179,18 +190,8 @@ void Parser::function()
 {
     c_ident();
     acceptToken(Token::Type::OpenBracket);
-/*
-    if(expectToken(Token::Type::Ident, 0))
-    {
-        c_ident();
 
-        while(expectToken(Token::Type::Comma, 0))
-        {
-            acceptToken(Token::Type::Comma);
-            c_ident();
-        }
-    }*/
-    while(!expectToken(Token::Type::CloseBracket, 0))
+    if(!expectToken(Token::Type::CloseBracket, 0))
     {
         expr();
 
@@ -211,7 +212,7 @@ void Parser::bool_ele() //TBD
     if(expectToken(Token::Type::Bool, 0)) acceptToken(Token::Type::Bool);
     else
     {
-        comp_expr();
+        comp_expr2();   //TODO
 
         /*int i = 0;
         while(expectToken(Token::Type::Ident, i++)) //TODO
@@ -311,6 +312,7 @@ void Parser::simple_st()
         break;
     }
 
+    error_manager.handleError(Error(Error::Type::Unexpected_token, peekToken().getLine(), peekToken().getPosition()));   //yikes
     //throw error
 }
 

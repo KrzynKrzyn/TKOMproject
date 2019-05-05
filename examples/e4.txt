@@ -11,7 +11,7 @@ class bde
 	private:
 	bde(double c)
 	{
-		while(c+10 >= a && c-10 < a || global == func(1.52, ex.g))
+		while(c+10 >= a && c-10 < a || func(1.52, ex.g))
 		{i=i-1;
 		c = c / i;}
 	}
