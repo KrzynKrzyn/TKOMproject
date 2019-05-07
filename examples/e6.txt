@@ -1,0 +1,12 @@
+class C
+{
+	public:
+	int b()
+	{
+		int a;
+		a = b * 5;
+		return a;
+	}
+
+};
+

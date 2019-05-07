@@ -12,20 +12,23 @@
 
 using namespace std;
 
-int main(int argc, char* argv[])
-{/*
-    FileSource blob("example.txt");
+void printTree(ast::Node n, int level)
+{
+    for(int i = 0; i<level; ++i) std::cout << "│";
+    std::cout << static_cast<int>(n.type) << std::endl;
 
-    while(!blob.isEOF())
+    for(ast::Node ni : n.children) 
     {
-        cout << blob.nextChar();
-        cout << '\t' << blob.getLine() << ":" << blob.getPosition() << endl;
+        for(int i = 0; i<level; ++i) std::cout << "│";
+        std::cout << "├" << "┐" << std::endl;
+        printTree(ni, level + 1);
     }
 
-    char test = 'a'; //48 - 57
+    //for(int i = 0; i<level; ++i) std::cout << "|";
+}
 
-    cout << test << endl;*/
-
+int main(int argc, char* argv[])
+{
     if(argc != 2)
     {
         cout << "Usage:" << endl;
@@ -53,13 +56,17 @@ int main(int argc, char* argv[])
     }
     while(t.getType() != Token::Type::Broken && t.getType() != Token::Type::Eof);*/
 
-    try {par.parse();}
+    ast::Node tree;
+
+    try {tree = par.parse();}
     catch(std::runtime_error e)
     {
         cout << e.what() << endl;
         return 1;
     }
     
+    printTree(tree, 0);
+    std::cout << std::endl;
 
     return 0;
 }

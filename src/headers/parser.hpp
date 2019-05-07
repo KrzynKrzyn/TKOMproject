@@ -7,11 +7,12 @@
 #include "token.hpp"
 #include "lexer.hpp"
 #include "error_manager.hpp"
+#include "ast.hpp"
 
 class Parser
 {
     public:
-        void parse();
+        ast::Node parse();
 
         Parser(Lexer &l, ErrorManager &em);
 
@@ -38,33 +39,33 @@ class Parser
         void acceptToken(Token::Type type);
         void acceptToken(std::set<Token::Type> types);
         
-        void c_ident();
-        void s_variable();
-        void s_function();
-        void comp_expr();
-        void comp_expr2();
-        void expr();
-        void assignment();
-        void return_st();
-        void statement();
-        void while_st();
-        void if_st();
-        void function();
-        void bool_ele();
-        void bool_expr2();
-        void bool_expr();
-        void arithm_ele();
-        void simple_expr2();
-        void simple_expr();
-        void s_simple_expr();
-        void simple_st();
-        void block_st();
-        void s_constructor();
-        void private_part();
-        void public_part();
-        void class_content();
-        void s_class();
-        void program();
+        ast::Node c_ident();
+        ast::Node s_variable();
+        ast::Node s_function();
+        ast::Node comp_expr();
+        ast::Node comp_expr2();
+        ast::Node expr();
+        ast::Node assignment();
+        ast::Node return_st();
+        ast::Node statement();
+        ast::Node while_st();
+        ast::Node if_st();
+        ast::Node function();
+        ast::Node bool_ele();
+        ast::Node bool_expr2();
+        ast::Node bool_expr();
+        ast::Node arithm_ele();
+        ast::Node simple_expr2();
+        ast::Node simple_expr();
+        ast::Node s_simple_expr();
+        ast::Node simple_st();
+        ast::Node block_st();
+        ast::Node s_constructor();
+        ast::Node private_part();
+        ast::Node public_part();
+        ast::Node class_content();
+        ast::Node s_class();
+        ast::Node program();
 /*
         Token peekToken()
         {
