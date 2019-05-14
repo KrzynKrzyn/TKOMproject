@@ -37,7 +37,7 @@ class Node
 
             children.rbegin()->level = this->level + 1;
 
-            return children[children.size()-1];
+            return children.back();
         }
 
         Node& attachNode(Node&& n)
@@ -46,7 +46,7 @@ class Node
 
             children.rbegin()->level = this->level + 1;
 
-            return children[children.size()-1];
+            return children.back();
         }
 
         void printTree()

@@ -219,29 +219,6 @@ void Parser::function(ast::Node& n) //OK
     acceptToken(Token::Type::CloseBracket);
 }
 
-void Parser::bool_ele(ast::Node& n) //TBD
-{
-    if(expectToken(Token::Type::Not,0)) acceptToken(Token::Type::Not);
-
-    if(expectToken(Token::Type::Bool, 0)) acceptToken(Token::Type::Bool);
-    if(expectToken(const_arithm) || expectToken(sign)) comp_expr(n);
-    else
-    {
-        int i = 0;
-        while(expectToken(Token::Type::Ident, i++)) //TODO
-        {
-            if(expectToken(Token::Type::OpenBracket, i)) function(n);
-            else if(!expectToken(Token::Type::Dot, i++)) c_ident(n);
-            else continue;
-
-            if(expectToken(add_operators) || expectToken(mul_operators) || expectToken(rel_operators)) started_comp_expr(n);
-            break;
-        }
-        //error
-    }
-    
-}
-
 void Parser::started_comp_expr(ast::Node& n)
 {
     simple_expr(n);
@@ -267,26 +244,88 @@ void Parser::expr(ast::Node& n)
     std::cout << "TODO2" << std::endl;
 }
 
-void Parser::bool_expr2(ast::Node& n)
+void Parser::bool_ele(ast::Node& n) //TBD
 {
-    bool_ele(n);
+    Token start = peekToken();
+    ast::Node& bool_node = n.attachNode("Bool element", start.getLine(), start.getPosition());
+
+    if(expectToken(Token::Type::Not,0)) 
+    {
+        Token neg = acceptToken(Token::Type::Not);
+        bool_node.attachNode("Negation", neg.getLine(), neg.getPosition());
+    }
+
+    if(expectToken(Token::Type::Bool,0)) 
+    {
+        Token ele = acceptToken(Token::Type::Bool);
+        bool_node.attachNode("Bool constant", ele.getLine(), ele.getPosition(), std::to_string(ele.getBool()));
+    }
+    else if(expectToken(const_arithm) || expectToken(sign)) comp_expr(bool_node);
+    else
+    {
+        ast::Node temp("Temp",0,0);
+
+        int i = 0;
+        while(expectToken(Token::Type::Ident, i++)) //TODO
+        {
+            if(expectToken(Token::Type::OpenBracket, i)) function(temp);
+            else if(!expectToken(Token::Type::Dot, i++)) c_ident(temp);
+            else continue;
+
+            if(expectToken(add_operators) || expectToken(mul_operators) || expectToken(rel_operators)) started_comp_expr(n);
+            else bool_node.attachNode(std::move(temp));
+            break;
+        }
+        //error
+    }
+    
+}
+
+void Parser::bool_expr2(ast::Node& n)   //OK
+{
+    Token start = peekToken();
+    ast::Node expr_node("Bool expression", start.getLine(), start.getPosition());
+
+    bool_ele(expr_node);
+
+    if(!expectToken(Token::Type::And)) 
+    {
+        n.attachNode(std::move(expr_node.children.front()));
+        return;
+    }
 
     while(expectToken(Token::Type::And, 0))
     {
+        expr_node.production.name = "And expression";
         acceptToken(Token::Type::And);
-        bool_ele(n);
+        bool_ele(expr_node);
     }
+
+    n.attachNode(std::move(expr_node));
 }
 
-void Parser::bool_expr(ast::Node& n)
+void Parser::bool_expr(ast::Node& n)    //OK
 {
-    bool_expr2(n);
+    Token start = peekToken();
+    //ast::Node& expr_node = n.attachNode("Bool expression", start.getLine(), start.getPosition());
+    ast::Node expr_node("Bool expression", start.getLine(), start.getPosition());
+
+    bool_expr2(expr_node);
+
+    if(!expectToken(Token::Type::Or)) 
+    {
+        n.attachNode(std::move(expr_node.children.front()));
+        return;
+    }
 
     while(expectToken(Token::Type::Or, 0))
     {
+        expr_node.production.name = "Or expression";
         acceptToken(Token::Type::Or);
-        bool_expr2(n);
+        bool_expr2(expr_node);
     }
+
+    n.attachNode(std::move(expr_node));
 }
 
 void Parser::arithm_ele(ast::Node& n)
