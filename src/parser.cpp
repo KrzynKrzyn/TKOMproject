@@ -1,8 +1,15 @@
 #include "headers/parser.hpp"
 #include <iostream>
-void Parser::parse()
+
+using ast::Node;
+
+ast::Node Parser::parse()
 {
-    program();
+    ast::Node root("Root", 0, 0);
+
+    program(root);
+
+    return root;
 }
 
 Parser::Parser(Lexer &l, ErrorManager &em): lexer(l), error_manager(em)
@@ -36,218 +43,253 @@ bool Parser::expectToken(std::set<Token::Type> types, size_t position)
     return (types.find(tokens[position].getType()) != types.end());
 }
 
-void Parser::acceptToken()
+Token Parser::acceptToken()
 {
-    peekToken();
-    tokens.pop_front();            
+    Token t = peekToken();
+    tokens.pop_front();
+
+    return t;     
 }
 
-void Parser::acceptToken(Token::Type type)
+Token Parser::acceptToken(Token::Type type)
 {
     Token t = peekToken();
 std::cout << "DEBUG: " << '\t' << t.toString() << '\t' << Token(type,0,0).toString() << std::endl;
     if(t.getType() == type) tokens.pop_front();
     else error_manager.handleError(Error(Error::Type::Unexpected_token, t.getLine(), t.getPosition()));
+
+    return t;    
 }
 
-void Parser::acceptToken(std::set<Token::Type> types)
+Token Parser::acceptToken(std::set<Token::Type> types)
 {
     Token t = peekToken();
 std::cout << "DEBUG: " << '\t' << t.toString() << std::endl;
     if(expectToken(types,0)) tokens.pop_front();
     else error_manager.handleError(Error(Error::Type::Unexpected_token, t.getLine(), t.getPosition()));
+
+    return t;    
 }
 
-void Parser::c_ident()
+void Parser::c_ident(ast::Node& n)  //OK
 {
-    acceptToken(Token::Type::Ident);
+    Token start = acceptToken(Token::Type::Ident);
+    ast::Node& cident_node = n.attachNode("Complex identifier", start.getLine(), start.getPosition());
 
     while(expectToken(Token::Type::Dot, 0))
     {
         acceptToken(Token::Type::Dot);
-        acceptToken(Token::Type::Ident);
+        Token ident = acceptToken(Token::Type::Ident);
+        cident_node.attachNode("Identifier", ident.getLine(), ident.getPosition(), ident.getName());
     }
 }
 
-void Parser::s_variable()
+void Parser::s_variable(ast::Node& n)   //OK
 {
-    acceptToken(Token::Type::Ident);
-    acceptToken(Token::Type::Ident);
+    Token type = acceptToken(Token::Type::Ident);
+    ast::Node& variable_node = n.attachNode("Variable declaration", type.getLine(), type.getPosition(), type.getName());
+
+    Token name = acceptToken(Token::Type::Ident);
+    variable_node.attachNode("Name", name.getLine(), name.getPosition(), name.getName());
 
     while(expectToken(Token::Type::Comma, 0))
     {
         acceptToken(Token::Type::Comma);
-        acceptToken(Token::Type::Ident);
+        name = acceptToken(Token::Type::Ident);
+        variable_node.attachNode("Name", name.getLine(), name.getPosition(), name.getName());
     }
 
     acceptToken(Token::Type::Semicolon);
 }
 
-void Parser::s_function()
+void Parser::s_function(ast::Node& n)   //OK
 {
-    acceptToken(Token::Type::Ident);
-    acceptToken(Token::Type::Ident);
+    Token f_type = acceptToken(Token::Type::Ident);
+    ast::Node& function_node = n.attachNode("Function declaration", f_type.getLine(), f_type.getPosition(), f_type.getName());
+
+    Token name = acceptToken(Token::Type::Ident);
+    function_node.attachNode("Name", name.getLine(), name.getPosition(), name.getName());
     acceptToken(Token::Type::OpenBracket);
 
     if(expectToken(Token::Type::Ident, 0))
     {
-        acceptToken(Token::Type::Ident);
-        acceptToken(Token::Type::Ident);
+        Token type = acceptToken(Token::Type::Ident);
+        Token arg_name = acceptToken(Token::Type::Ident);
+
+        ast::Node& argument = function_node.attachNode("Argument", type.getLine(), type.getPosition(), type.getName());
+        argument.attachNode("Name", arg_name.getLine(), arg_name.getPosition(), arg_name.getName());
 
         while(expectToken(Token::Type::Comma, 0))
         {
             acceptToken(Token::Type::Comma);
-            acceptToken(Token::Type::Ident);
-            acceptToken(Token::Type::Ident);
+            
+            type = acceptToken(Token::Type::Ident);
+            arg_name = acceptToken(Token::Type::Ident);
+
+            argument = function_node.attachNode("Argument", type.getLine(), type.getPosition(), type.getName());
+            argument.attachNode("Name", arg_name.getLine(), arg_name.getPosition(), arg_name.getName());
         }
     }
 
     acceptToken(Token::Type::CloseBracket);
-    block_st();
+    block_st(function_node);
 }
 
-void Parser::comp_expr2()
+void Parser::assignment(ast::Node& n)   //OK
 {
-    simple_expr();
+    Token start = peekToken();
+    ast::Node& assign_node = n.attachNode("Assignment", start.getLine(), start.getPosition());
 
-    if(expectToken(rel_operators, 0))
-    {
-        acceptToken(rel_operators);
-        simple_expr();
-    }
-}
-
-void Parser::comp_expr()
-{
-    simple_expr();
-
-    acceptToken(rel_operators);
-
-    simple_expr();
-}
-
-void Parser::expr()
-{
-    std::cout << "TODO1" << std::endl;
-    simple_expr();
-    std::cout << "TODO2" << std::endl;
-}
-
-void Parser::assignment()
-{
-    c_ident();
+    c_ident(assign_node);
 
     acceptToken(Token::Type::Assignment);
 
-    expr();
+    expr(assign_node);
 
     acceptToken(Token::Type::Semicolon);
 
 }
 
-void Parser::return_st()
+void Parser::return_st(ast::Node& n)    //OK
 {
-    acceptToken(Token::Type::Return);
+    Token start = acceptToken(Token::Type::Return);
+    ast::Node& return_node = n.attachNode("Return statement", start.getLine(), start.getPosition());
 
-    if(!expectToken(Token::Type::Semicolon, 0)) expr(); //optional
+    if(!expectToken(Token::Type::Semicolon, 0)) expr(return_node); //optional
 
     acceptToken(Token::Type::Semicolon);
 }
 
-void Parser::statement()
+void Parser::statement(ast::Node& n)    //OK
 {
-    if(expectToken(Token::Type::OpenCurly, 0)) block_st();
-    simple_st();
+    Token start = peekToken();
+    ast::Node& st_node = n.attachNode("Statement", start.getLine(), start.getPosition());
+
+    if(expectToken(Token::Type::OpenCurly, 0)) block_st(st_node);
+    simple_st(st_node);
 }
 
-void Parser::while_st()
+void Parser::while_st(ast::Node& n) //OK
 {
-    acceptToken(Token::Type::While);
+    Token start = acceptToken(Token::Type::While);
+    ast::Node& while_node = n.attachNode("While statement", start.getLine(), start.getPosition());
+
     acceptToken(Token::Type::OpenBracket);
-    bool_expr();
+    bool_expr(while_node);
     acceptToken(Token::Type::CloseBracket);
 
-    statement();
+    statement(while_node);
 }
 
-void Parser::if_st()
+void Parser::if_st(ast::Node& n)    //OK
 {
-    acceptToken(Token::Type::If);
+    Token start = acceptToken(Token::Type::If);
+    ast::Node& if_node = n.attachNode("If statement", start.getLine(), start.getPosition());
     acceptToken(Token::Type::OpenBracket);
-    bool_expr();
+    bool_expr(if_node);
     acceptToken(Token::Type::CloseBracket);
 
-    statement();
+    statement(if_node);
 
     if(expectToken(Token::Type::Else, 0))
     {
         acceptToken(Token::Type::Else);
-        statement();
+        statement(if_node);
     }
 }
 
-void Parser::function()
+void Parser::function(ast::Node& n) //OK
 {
-    c_ident();
+    Token start = peekToken();
+    ast::Node& function_node = n.attachNode("Function", start.getLine(), start.getPosition());
+    c_ident(function_node);
     acceptToken(Token::Type::OpenBracket);
 
     if(!expectToken(Token::Type::CloseBracket, 0))
     {
-        expr();
+        expr(function_node);
 
         while(expectToken(Token::Type::Comma, 0))
         {
             acceptToken(Token::Type::Comma);
-            expr();
+            expr(function_node);
         }
     }
 
     acceptToken(Token::Type::CloseBracket);
 }
 
-void Parser::bool_ele() //TBD
+void Parser::bool_ele(ast::Node& n) //TBD
 {
     if(expectToken(Token::Type::Not,0)) acceptToken(Token::Type::Not);
 
     if(expectToken(Token::Type::Bool, 0)) acceptToken(Token::Type::Bool);
+    if(expectToken(const_arithm) || expectToken(sign)) comp_expr(n);
     else
     {
-        comp_expr2();   //TODO
-
-        /*int i = 0;
+        int i = 0;
         while(expectToken(Token::Type::Ident, i++)) //TODO
         {
-            if(expectToken(Token::Type::OpenBracket, i)) function();
-            else if(!expectToken(Token::Type::Dot, i++)) c_ident();
+            if(expectToken(Token::Type::OpenBracket, i)) function(n);
+            else if(!expectToken(Token::Type::Dot, i++)) c_ident(n);
             else continue;
+
+            if(expectToken(add_operators) || expectToken(mul_operators) || expectToken(rel_operators)) started_comp_expr(n);
             break;
-        }*/
+        }
+        //error
     }
+    
 }
 
-void Parser::bool_expr2()
+void Parser::started_comp_expr(ast::Node& n)
 {
-    bool_ele();
+    simple_expr(n);
+
+    acceptToken(rel_operators);
+
+    simple_expr(n);
+}
+
+void Parser::comp_expr(ast::Node& n)
+{
+    simple_expr(n);
+
+    acceptToken(rel_operators);
+
+    simple_expr(n);
+}
+
+void Parser::expr(ast::Node& n)
+{
+    std::cout << "TODO1" << std::endl;
+    simple_expr(n);
+    std::cout << "TODO2" << std::endl;
+}
+
+void Parser::bool_expr2(ast::Node& n)
+{
+    bool_ele(n);
 
     while(expectToken(Token::Type::And, 0))
     {
         acceptToken(Token::Type::And);
-        bool_ele();
+        bool_ele(n);
     }
 }
 
-void Parser::bool_expr()
+void Parser::bool_expr(ast::Node& n)
 {
-    bool_expr2();
+    bool_expr2(n);
 
     while(expectToken(Token::Type::Or, 0))
     {
         acceptToken(Token::Type::Or);
-        bool_expr2();
+        bool_expr2(n);
     }
 }
 
-void Parser::arithm_ele()
+void Parser::arithm_ele(ast::Node& n)
 {
     if(expectToken(sign,0)) acceptToken(sign);
 
@@ -257,165 +299,179 @@ void Parser::arithm_ele()
         int i = 0;
         while(expectToken(Token::Type::Ident, i++))//TODO
         {
-            if(expectToken(Token::Type::OpenBracket, i)) function();
-            else if(!expectToken(Token::Type::Dot, i++)) c_ident();
+            if(expectToken(Token::Type::OpenBracket, i)) function(n);
+            else if(!expectToken(Token::Type::Dot, i++)) c_ident(n);
             else continue;
             break;
         }
     }
 }
 
-void Parser::simple_expr2()
+void Parser::simple_expr2(ast::Node& n)
 {
-    arithm_ele();
+    arithm_ele(n);
 
     while(expectToken(mul_operators, 0))
     {
         acceptToken(mul_operators);
-        arithm_ele();
+        arithm_ele(n);
     }
 }
 
-void Parser::simple_expr()
+void Parser::simple_expr(ast::Node& n)
 {
-    simple_expr2();
+    simple_expr2(n);
 
     while(expectToken(add_operators, 0))
     {
         acceptToken(add_operators);
-        simple_expr2();
+        simple_expr2(n);
     }
 }
 
-void Parser::s_simple_expr()
+void Parser::s_simple_expr(ast::Node& n)    //OK
 {
-    simple_expr();
+    simple_expr(n);
     acceptToken(Token::Type::Semicolon);
 }
 
-void Parser::simple_st()
+void Parser::simple_st(ast::Node& n)    //OK
 {
-    if(expectToken(Token::Type::If, 0)) if_st();
-    else if(expectToken(Token::Type::While, 0)) while_st();
-    else if(expectToken(Token::Type::Return, 0)) return_st();
-    else if(expectToken(Token::Type::Ident, 0) && expectToken(Token::Type::Ident, 1)) s_variable();
+    if(expectToken(Token::Type::If, 0)) if_st(n);
+    else if(expectToken(Token::Type::While, 0)) while_st(n);
+    else if(expectToken(Token::Type::Return, 0)) return_st(n);
+    else if(expectToken(Token::Type::Ident, 0) && expectToken(Token::Type::Ident, 1)) s_variable(n);
     else if(expectToken(Token::Type::Minus, 0) || expectToken(Token::Type::Plus, 0) ||
-            expectToken(Token::Type::Int, 0) || expectToken(Token::Type::Double, 0)) s_simple_expr();
+            expectToken(Token::Type::Int, 0) || expectToken(Token::Type::Double, 0)) s_simple_expr(n);
 
     int i = 0;
     while(expectToken(Token::Type::Ident, i++))
     {
-        if(expectToken(Token::Type::Assignment, i)) assignment();
-        else if(expectToken(Token::Type::OpenBracket, i)) s_simple_expr();
-        else if(!expectToken(Token::Type::Dot, i++)) s_simple_expr();
+        if(expectToken(Token::Type::Assignment, i)) assignment(n);
+        else if(expectToken(Token::Type::OpenBracket, i)) s_simple_expr(n);
+        else if(!expectToken(Token::Type::Dot, i++)) s_simple_expr(n);
         else continue;
         break;
     }
 
-    error_manager.handleError(Error(Error::Type::Unexpected_token, peekToken().getLine(), peekToken().getPosition()));   //yikes
+    //error_manager.handleError(Error(Error::Type::Unexpected_token, peekToken().getLine(), peekToken().getPosition()));   //yikes
     //throw error
 }
 
-void Parser::block_st()
+void Parser::block_st(ast::Node& n) //OK
 {
     acceptToken(Token::Type::OpenCurly);
 
-    while(!expectToken(Token::Type::CloseCurly, 0)) simple_st();   //TBD
+    while(!expectToken(Token::Type::CloseCurly, 0)) simple_st(n);   //TBD
 
     acceptToken(Token::Type::CloseCurly);
 }
 
-void Parser::s_constructor()
+void Parser::s_constructor(ast::Node& n)    //OK
 {
-    acceptToken(Token::Type::Ident);
+    Token start = acceptToken(Token::Type::Ident);
+    ast::Node& constructor_node = n.attachNode("Constructor_declaration", start.getLine(), start.getPosition(), start.getName());
     acceptToken(Token::Type::OpenBracket);
 
     if(expectToken(Token::Type::Ident, 0))
     {
-        acceptToken(Token::Type::Ident);
-        acceptToken(Token::Type::Ident);
+        Token type = acceptToken(Token::Type::Ident);
+        Token arg_name = acceptToken(Token::Type::Ident);
+
+        ast::Node& argument = constructor_node.attachNode("Argument", type.getLine(), type.getPosition(), type.getName());
+        argument.attachNode("Name", arg_name.getLine(), arg_name.getPosition(), arg_name.getName());
 
         while(expectToken(Token::Type::Comma, 0))
         {
             acceptToken(Token::Type::Comma);
-            acceptToken(Token::Type::Ident);
-            acceptToken(Token::Type::Ident);
+            
+            type = acceptToken(Token::Type::Ident);
+            arg_name = acceptToken(Token::Type::Ident);
+
+            argument = constructor_node.attachNode("Argument", type.getLine(), type.getPosition(), type.getName());
+            argument.attachNode("Name", arg_name.getLine(), arg_name.getPosition(), arg_name.getName());
         }
     }
 
     acceptToken(Token::Type::CloseBracket);
-    block_st();
+    block_st(constructor_node);
 }
 
-void Parser::private_part()
+void Parser::private_part(ast::Node& n) //OK
 {
-    acceptToken(Token::Type::Private);
+    Token start = acceptToken(Token::Type::Private);
     acceptToken(Token::Type::Colon);
+
+    ast::Node& private_node = n.attachNode("Private", start.getLine(), start.getPosition());
 
     while(true)
     {
         if(!expectToken(Token::Type::Ident, 0)) break;
 
-        if(expectToken(Token::Type::OpenBracket, 1)) s_constructor();
+        if(expectToken(Token::Type::OpenBracket, 1)) s_constructor(private_node);
         else if(expectToken(Token::Type::Ident, 1))
         {
-            if(expectToken(Token::Type::OpenBracket, 2)) s_function();
-            else if(expectToken(Token::Type::Comma, 2) || expectToken(Token::Type::Semicolon, 2)) s_variable();
+            if(expectToken(Token::Type::OpenBracket, 2)) s_function(private_node);
+            else if(expectToken(Token::Type::Comma, 2) || expectToken(Token::Type::Semicolon, 2)) s_variable(private_node);
             else break; 
         }
         else break; 
     }
 }
 
-void Parser::public_part()
+void Parser::public_part(ast::Node& n)  //OK
 {
-    acceptToken(Token::Type::Public);
+    Token start = acceptToken(Token::Type::Public);
     acceptToken(Token::Type::Colon);
+
+    ast::Node& public_node = n.attachNode("Public", start.getLine(), start.getPosition());
 
     while(true)
     {
         if(!expectToken(Token::Type::Ident, 0)) break;
 
-        if(expectToken(Token::Type::OpenBracket, 1)) s_constructor();
+        if(expectToken(Token::Type::OpenBracket, 1)) s_constructor(public_node);
         else if(expectToken(Token::Type::Ident, 1))
         {
-            if(expectToken(Token::Type::OpenBracket, 2)) s_function();
-            else if(expectToken(Token::Type::Comma, 2) || expectToken(Token::Type::Semicolon, 2)) s_variable();
+            if(expectToken(Token::Type::OpenBracket, 2)) s_function(public_node);
+            else if(expectToken(Token::Type::Comma, 2) || expectToken(Token::Type::Semicolon, 2)) s_variable(public_node);
             else break; 
         }
         else break; 
     }
 }
 
-void Parser::class_content()
+void Parser::class_content(ast::Node& n)  //OK
 {
     while(true)
     {
-        if(expectToken(Token::Type::Private, 0)) private_part();
-        else if(expectToken(Token::Type::Public, 0)) public_part();
+        if(expectToken(Token::Type::Private, 0)) private_part(n);
+        else if(expectToken(Token::Type::Public, 0)) public_part(n);
         else break;
     }
 }
 
-void Parser::s_class()
+void Parser::s_class(ast::Node& n)  //OK
 {
-    acceptToken(Token::Type::Class);
+    Token start = acceptToken(Token::Type::Class);
     acceptToken(Token::Type::Ident);
+    ast::Node& class_node = n.attachNode("Class", start.getLine(), start.getPosition(), start.getName());
+
     acceptToken(Token::Type::OpenCurly);
-    class_content();
+    class_content(class_node);
     acceptToken(Token::Type::CloseCurly);
     acceptToken(Token::Type::Semicolon);
 }
 
-void Parser::program()//while loop might be faulty (eof)
+void Parser::program(ast::Node& n)  //OK
 {
     while(true)
     {
-        if(expectToken(Token::Type::Class, 0)) s_class();
+        if(expectToken(Token::Type::Class, 0)) s_class(n);
         else if(expectToken(Token::Type::Ident, 0) && expectToken(Token::Type::Ident, 1))
         {
-            if(expectToken(Token::Type::OpenBracket, 2)) s_function();
-            else if(expectToken(Token::Type::Comma, 2) || expectToken(Token::Type::Semicolon, 2)) s_variable();
+            if(expectToken(Token::Type::OpenBracket, 2)) s_function(n);
+            else if(expectToken(Token::Type::Comma, 2) || expectToken(Token::Type::Semicolon, 2)) s_variable(n);
             else error_manager.handleError(Error(Error::Type::Unexpected_token, tokens.front().getLine(), tokens.front().getPosition())); 
         }
         else break;

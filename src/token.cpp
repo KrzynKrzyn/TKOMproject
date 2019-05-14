@@ -46,10 +46,12 @@ std::map<Token::Type, std::string> Token::type_names =
     {Token::Type::Broken, "Broken"},
 };
 
-std::string Token::toString()
+std::string Token::toString(bool extra_info)
 {
     auto to_string = type_names.find(this->getType());
     if(to_string == type_names.end()) return "Unknown token";
+
+    if(!extra_info) return to_string->second;
 
     if(this->getType() == Token::Type::Ident) return to_string->second + " (" + this->getName() + ")";
     if(this->getType() == Token::Type::Int) return to_string->second + " (" + std::to_string(this->getInt()) + ")";

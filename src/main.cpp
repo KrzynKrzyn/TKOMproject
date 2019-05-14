@@ -10,6 +10,8 @@
 //arithm_ele and bool_ele -> to be changed
 //expr / bool_expr -> to be changed
 
+//type handling in ast -- to be thought through
+
 using namespace std;
 
 int main(int argc, char* argv[])
@@ -52,8 +54,11 @@ int main(int argc, char* argv[])
         cout << t.getLine() << ':' << t.getPosition() << " -- " << t.toString() << endl;
     }
     while(t.getType() != Token::Type::Broken && t.getType() != Token::Type::Eof);*/
-
-    try {par.parse();}
+    try 
+    {
+        ast::Node root = par.parse();
+        root.printTree();
+    }
     catch(std::runtime_error e)
     {
         cout << e.what() << endl;

@@ -84,7 +84,7 @@ class Token
         double getDouble() const { return value.floating; }
         bool getBool() const { return value.boolean; }
 
-        std::string toString();
+        std::string toString(bool extra_info = false);
 };
 
 

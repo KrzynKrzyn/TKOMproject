@@ -7,11 +7,12 @@
 #include "token.hpp"
 #include "lexer.hpp"
 #include "error_manager.hpp"
+#include "ast.hpp"
 
 class Parser
 {
     public:
-        void parse();
+        ast::Node parse();
 
         Parser(Lexer &l, ErrorManager &em);
 
@@ -31,40 +32,40 @@ class Parser
         Token nextToken();
         Token peekToken();
 
-        bool expectToken(Token::Type type, size_t position);
-        bool expectToken(std::set<Token::Type> types, size_t position);
+        bool expectToken(Token::Type type, size_t position = 0);
+        bool expectToken(std::set<Token::Type> types, size_t position = 0);
 
-        void acceptToken();
-        void acceptToken(Token::Type type);
-        void acceptToken(std::set<Token::Type> types);
+        Token acceptToken();
+        Token acceptToken(Token::Type type);
+        Token acceptToken(std::set<Token::Type> types);
         
-        void c_ident();
-        void s_variable();
-        void s_function();
-        void comp_expr();
-        void comp_expr2();
-        void expr();
-        void assignment();
-        void return_st();
-        void statement();
-        void while_st();
-        void if_st();
-        void function();
-        void bool_ele();
-        void bool_expr2();
-        void bool_expr();
-        void arithm_ele();
-        void simple_expr2();
-        void simple_expr();
-        void s_simple_expr();
-        void simple_st();
-        void block_st();
-        void s_constructor();
-        void private_part();
-        void public_part();
-        void class_content();
-        void s_class();
-        void program();
+        void c_ident(ast::Node& n);
+        void s_variable(ast::Node& n);
+        void s_function(ast::Node& n);
+        void comp_expr(ast::Node& n);
+        void started_comp_expr(ast::Node& n);
+        void expr(ast::Node& n);
+        void assignment(ast::Node& n);
+        void return_st(ast::Node& n);
+        void statement(ast::Node& n);
+        void while_st(ast::Node& n);
+        void if_st(ast::Node& n);
+        void function(ast::Node& n);
+        void bool_ele(ast::Node& n);
+        void bool_expr2(ast::Node& n);
+        void bool_expr(ast::Node& n);
+        void arithm_ele(ast::Node& n);
+        void simple_expr2(ast::Node& n);
+        void simple_expr(ast::Node& n);
+        void s_simple_expr(ast::Node& n);
+        void simple_st(ast::Node& n);
+        void block_st(ast::Node& n);
+        void s_constructor(ast::Node& n);
+        void private_part(ast::Node& n);
+        void public_part(ast::Node& n);
+        void class_content(ast::Node& n);
+        void s_class(ast::Node& n);
+        void program(ast::Node& n);
 /*
         Token peekToken()
         {
