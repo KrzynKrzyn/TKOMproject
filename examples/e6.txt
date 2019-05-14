@@ -1,0 +1,44 @@
+class A
+{
+	private:
+	int a, b, c;	
+	
+	public:
+	void foo(double d, bool extra)
+	{
+		a = a + d;
+		if()
+		b = d + b * a + d;
+		if(extra) c = a * d / a - a + d * a;
+	}
+
+	int test()
+	{
+		while(5 + a < goo(c)) a = a + goo(c);
+		return a + b * c;
+	}
+
+};
+
+class stub
+{
+	public:
+	double e;
+	
+	double doIt(double c)
+	{
+	return c % e;
+	}
+};
+
+int main()
+{
+	A a;
+	a.b = 8;
+	a.a = 7;
+	
+	a.test();
+	a.foo(5.5, 8 + a.test());
+
+	return 0;
+}

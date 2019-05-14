@@ -126,7 +126,7 @@ void Parser::s_function(ast::Node& n)   //OK
             type = acceptToken(Token::Type::Ident);
             arg_name = acceptToken(Token::Type::Ident);
 
-            argument = function_node.attachNode("Argument", type.getLine(), type.getPosition(), type.getName());
+            argument = function_node.attachNode("Argument", type.getLine(), type.getPosition(), type.getName());    //something fishy in here
             argument.attachNode("Name", arg_name.getLine(), arg_name.getPosition(), arg_name.getName());
         }
     }
@@ -228,13 +228,16 @@ void Parser::started_comp_expr(ast::Node& n)
     simple_expr(n);
 }
 
-void Parser::comp_expr(ast::Node& n)
+void Parser::comp_expr(ast::Node& n)    //OK
 {
-    simple_expr(n);
+    Token start = peekToken();
+    ast::Node& cexpr_node = n.attachNode("Relational expression", start.getLine(), start.getPosition());
+    simple_expr(cexpr_node);
 
-    acceptToken(rel_operators);
+    Token oper = acceptToken(rel_operators);
+    cexpr_node.production.value = oper.toString();
 
-    simple_expr(n);
+    simple_expr(cexpr_node);
 }
 
 void Parser::expr(ast::Node& n)
@@ -272,7 +275,7 @@ void Parser::bool_ele(ast::Node& n) //TBD
             else if(!expectToken(Token::Type::Dot, i++)) c_ident(temp);
             else continue;
 
-            if(expectToken(add_operators) || expectToken(mul_operators) || expectToken(rel_operators)) started_comp_expr(n);
+            if(expectToken(add_operators) || expectToken(mul_operators) || expectToken(rel_operators)) started_comp_expr(temp);
             else bool_node.attachNode(std::move(temp));
             break;
         }
@@ -320,52 +323,84 @@ void Parser::bool_expr(ast::Node& n)    //OK
 
     while(expectToken(Token::Type::Or, 0))
     {
-        expr_node.production.name = "Or expression";
         acceptToken(Token::Type::Or);
+        expr_node.production.name = "Or expression";
         bool_expr2(expr_node);
     }
 
     n.attachNode(std::move(expr_node));
 }
 
-void Parser::arithm_ele(ast::Node& n)
+void Parser::arithm_ele(ast::Node& n)   //PARTIALY
 {
-    if(expectToken(sign,0)) acceptToken(sign);
+    Token start = peekToken();
+    ast::Node& arithm_node = n.attachNode("Arithm element", start.getLine(), start.getPosition());
 
-    if(expectToken(const_arithm, 0)) acceptToken(const_arithm);
+    //if(expectToken(sign,0)) acceptToken(sign);
+
+    if(expectToken(const_arithm, 0))
+    {
+        Token ele = acceptToken(const_arithm);
+        arithm_node.attachNode("Arithmetical constant", ele.getLine(), ele.getPosition());  //TODO
+    } 
     else
     {
         int i = 0;
         while(expectToken(Token::Type::Ident, i++))//TODO
         {
-            if(expectToken(Token::Type::OpenBracket, i)) function(n);
-            else if(!expectToken(Token::Type::Dot, i++)) c_ident(n);
+            if(expectToken(Token::Type::OpenBracket, i)) function(arithm_node);
+            else if(!expectToken(Token::Type::Dot, i++)) c_ident(arithm_node);
             else continue;
             break;
         }
     }
 }
 
-void Parser::simple_expr2(ast::Node& n)
+void Parser::simple_expr2(ast::Node& n) //PARTIALY
 {
-    arithm_ele(n);
+    Token start = peekToken();
+    ast::Node expr_node("Simple expression", start.getLine(), start.getPosition());
+
+    arithm_ele(expr_node);
+
+    if(!expectToken(mul_operators)) 
+    {
+        n.attachNode(std::move(expr_node.children.front()));
+        return;
+    }
 
     while(expectToken(mul_operators, 0))
     {
-        acceptToken(mul_operators);
-        arithm_ele(n);
+        Token oper = acceptToken(mul_operators);
+        expr_node.production.name = oper.toString();
+        arithm_ele(expr_node);
     }
+
+    n.attachNode(std::move(expr_node));
 }
 
-void Parser::simple_expr(ast::Node& n)
+void Parser::simple_expr(ast::Node& n)  //PARTIALY
 {
-    simple_expr2(n);
+    Token start = peekToken();
+    //ast::Node& expr_node = n.attachNode("Bool expression", start.getLine(), start.getPosition());
+    ast::Node expr_node("Simple expression", start.getLine(), start.getPosition());
+
+    simple_expr2(expr_node);
+
+    if(!expectToken(add_operators)) 
+    {
+        n.attachNode(std::move(expr_node.children.front()));
+        return;
+    }
 
     while(expectToken(add_operators, 0))
     {
-        acceptToken(add_operators);
-        simple_expr2(n);
+        Token oper = acceptToken(add_operators);
+        expr_node.production.name = oper.toString();
+        simple_expr2(expr_node);
     }
+
+    n.attachNode(std::move(expr_node));
 }
 
 void Parser::s_simple_expr(ast::Node& n)    //OK
