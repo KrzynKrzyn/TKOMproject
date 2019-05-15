@@ -20,7 +20,7 @@ int main()
 	bool bB;
 	bB = true;
 
-	while(bB == true)
+	while(bB)
 	{
 		if(i < j) bB = false;
 		

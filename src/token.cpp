@@ -53,10 +53,15 @@ std::string Token::toString(bool extra_info)
 
     if(!extra_info) return to_string->second;
 
-    if(this->getType() == Token::Type::Ident) return to_string->second + " (" + this->getName() + ")";
-    if(this->getType() == Token::Type::Int) return to_string->second + " (" + std::to_string(this->getInt()) + ")";
-    if(this->getType() == Token::Type::Double) return to_string->second + " (" + std::to_string(this->getDouble()) + ")";
-    if(this->getType() == Token::Type::Bool) return to_string->second + " (" + std::to_string(this->getBool()) + ")";
+    return to_string->second + " (" + this->toStringExtra() + ")";
+}
 
-    return to_string->second;
+std::string Token::toStringExtra()
+{
+    if(this->getType() == Token::Type::Ident) return this->getName();
+    if(this->getType() == Token::Type::Int) return std::to_string(this->getInt());
+    if(this->getType() == Token::Type::Double) return std::to_string(this->getDouble());
+    if(this->getType() == Token::Type::Bool) return std::to_string(this->getBool());
+
+    return std::string();
 }

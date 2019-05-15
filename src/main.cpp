@@ -57,6 +57,7 @@ int main(int argc, char* argv[])
     try 
     {
         ast::Node root = par.parse();
+        root.adjustLevels();
         root.printTree();
     }
     catch(std::runtime_error e)

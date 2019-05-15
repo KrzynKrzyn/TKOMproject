@@ -28,34 +28,18 @@ class Node
         Production production;
         std::vector<Node> children;
 
-        Node(std::string name_, int row_, int pos_, std::string value_ = ""): 
-            production(name_, value_, row_, pos_) {}
+        Node(std::string name_, int row_, int pos_, std::string value_ = "");
 
-        Node& attachNode(std::string name_, int row_, int pos_, std::string value_ = "")
-        {
-            children.push_back(Node(name_, row_, pos_, value_)); //std::move?
+        static const Node empty;
 
-            children.rbegin()->level = this->level + 1;
+        bool isEmpty();
 
-            return children.back();
-        }
+        void adjustLevels();
 
-        Node& attachNode(Node&& n)
-        {
-            children.push_back(std::move(n));
+        Node& attachNode(std::string name_, int row_, int pos_, std::string value_ = "");
+        Node& attachNode(Node&& n);
 
-            children.rbegin()->level = this->level + 1;
-
-            return children.back();
-        }
-
-        void printTree()
-        {
-            for(int i=0; i<level; ++i) std::cout << '\t';
-            std::cout << production.name << std::endl;
-
-            for(Node n : children) n.printTree();
-        };
+        void printTree();
 };
 
 /*

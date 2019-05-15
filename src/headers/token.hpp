@@ -85,6 +85,7 @@ class Token
         bool getBool() const { return value.boolean; }
 
         std::string toString(bool extra_info = false);
+        std::string toStringExtra();
 };
 
 

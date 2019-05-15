@@ -6,7 +6,7 @@ int a, b;
 	public:
 	void func()
 	{
-	  if(c!= false)
+	  if(!c)
 	  a = b *5+ c;
 	  else
 	  c = true;
