@@ -1,33 +1,18 @@
 #include <iostream>
 
-#include "headers/parser.hpp"
-
-//do something with awful page-long switches and ifs
-//implement token tostring()
-//cleanup include mess
-//error handling -> warnings
+#include "parser.hpp"
+#include "semantic.hpp"
 
 //arithm_ele and bool_ele -> to be changed
 //expr / bool_expr -> to be changed
 
 //type handling in ast -- to be thought through
+//backtracking -> one parser member variable instead of current joggling between methods
 
 using namespace std;
 
 int main(int argc, char* argv[])
-{/*
-    FileSource blob("example.txt");
-
-    while(!blob.isEOF())
-    {
-        cout << blob.nextChar();
-        cout << '\t' << blob.getLine() << ":" << blob.getPosition() << endl;
-    }
-
-    char test = 'a'; //48 - 57
-
-    cout << test << endl;*/
-
+{
     if(argc != 2)
     {
         cout << "Usage:" << endl;
@@ -54,10 +39,10 @@ int main(int argc, char* argv[])
         cout << t.getLine() << ':' << t.getPosition() << " -- " << t.toString() << endl;
     }
     while(t.getType() != Token::Type::Broken && t.getType() != Token::Type::Eof);*/
+    
     try 
     {
         ast::Node root = par.parse();
-        root.adjustLevels();
         root.printTree();
     }
     catch(std::runtime_error e)

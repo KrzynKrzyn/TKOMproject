@@ -35,7 +35,6 @@ class Node
         bool isEmpty();
 
         void adjustLevels();
-
         Node& attachNode(std::string name_, int row_, int pos_, std::string value_ = "");
         Node& attachNode(Node&& n);
 

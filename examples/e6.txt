@@ -17,6 +17,17 @@ class A
 		return a + b * c;
 	}
 
+	A(int aa, int cc)
+	{
+		a = aa;
+		c = cc;
+	}
+
+	A(int cc)
+	{
+		c = cc;
+	}
+
 };
 
 class stub

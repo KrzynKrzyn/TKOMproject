@@ -1,4 +1,4 @@
-#include "headers/parser.hpp"
+#include "parser.hpp"
 #include <iostream>
 
 using ast::Node;
@@ -331,11 +331,6 @@ void Parser::bool_expr(ast::Node& n)    //OK
 
 void Parser::arithm_ele(ast::Node& n, ast::Node backtracking)   //OK (w/o unary sign)
 {
-    //Token start = peekToken();
-    //ast::Node& arithm_node = n.attachNode("Arithm element", start.getLine(), start.getPosition());
-
-    //if(expectToken(sign,0)) acceptToken(sign);
-
     if(!backtracking.isEmpty())
     {
         if((backtracking.production.name == "Complex identifier" || backtracking.production.name == "Function")) 
@@ -344,6 +339,11 @@ void Parser::arithm_ele(ast::Node& n, ast::Node backtracking)   //OK (w/o unary 
 
         return;
     }
+
+    //Token start = peekToken();
+    //ast::Node& arithm_node = n.attachNode("Arithm element", start.getLine(), start.getPosition());
+
+    //if(expectToken(sign,0)) acceptToken(sign);
 
     if(expectToken(const_arithm, 0))
     {
@@ -453,7 +453,7 @@ void Parser::block_st(ast::Node& n) //OK
 void Parser::s_constructor(ast::Node& n)    //OK
 {
     Token start = acceptToken(Token::Type::Ident);
-    ast::Node& constructor_node = n.attachNode("Constructor_declaration", start.getLine(), start.getPosition(), start.getName());
+    ast::Node& constructor_node = n.attachNode("Constructor declaration", start.getLine(), start.getPosition(), start.getName());
     acceptToken(Token::Type::OpenBracket);
 
     if(expectToken(Token::Type::Ident, 0))
@@ -537,8 +537,8 @@ void Parser::class_content(ast::Node& n)  //OK
 void Parser::s_class(ast::Node& n)  //OK
 {
     Token start = acceptToken(Token::Type::Class);
-    acceptToken(Token::Type::Ident);
-    ast::Node& class_node = n.attachNode("Class", start.getLine(), start.getPosition(), start.getName());
+    Token name = acceptToken(Token::Type::Ident);
+    ast::Node& class_node = n.attachNode("Class", start.getLine(), start.getPosition(), name.getName());
 
     acceptToken(Token::Type::OpenCurly);
     class_content(class_node);

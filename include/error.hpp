@@ -21,6 +21,15 @@ class Error
             Bad_identifier,
             Unknown_symbol,
             Unexpected_token,
+            Uninitialized_variable,
+            Uninitialized_function,
+            Uninitialized_class,
+            Multi_initialization,
+            Unused_const,
+            Unused_variable,
+            Unused_function,
+            Unused_constructor,
+            Unused_class,
         };
 
         enum class Severity

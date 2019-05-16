@@ -1,4 +1,4 @@
-#include "headers/ast.hpp"
+#include "ast.hpp"
 
 using ast::Node;
 

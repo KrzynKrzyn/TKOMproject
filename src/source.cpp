@@ -1,4 +1,4 @@
-#include "headers/source.hpp"
+#include "source.hpp"
 
 char FileSource::nextChar()
 {
