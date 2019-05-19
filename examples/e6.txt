@@ -4,8 +4,10 @@ class A
 	int a, b, c;	
 	
 	public:
-	void foo(double d, bool extra)
+	void foo(double b, bool extra)
 	{
+		de = false;
+
 		a = a + d;
 		b = d + b * a + d;
 		if(blol || extra && !another_bool) c = a * d / a - a + d * a;
@@ -13,7 +15,7 @@ class A
 
 	int test()
 	{
-		while(5 + a < goo(c)) a = a + goo(c);
+		while(5 + a < goo(c)) a = a + ba.ce.goo(c);
 		return a + b * c;
 	}
 
@@ -30,12 +32,14 @@ class A
 
 };
 
+A b,d,f;
+
 class stub
 {
 	public:
 	double e;
 	
-	double doIt(double c)
+	A doIt(double c)
 	{
 	return c % e;
 	}
@@ -43,7 +47,8 @@ class stub
 
 int main()
 {
-	A a;
+	A a;	
+
 	a.b = 8;
 	a.a = 7;
 	

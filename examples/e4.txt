@@ -2,6 +2,9 @@ class ex
 {
 	public:
 	int c, g, h;
+
+	private:
+	bool ce;
 };
 
 bool global;
@@ -9,24 +12,27 @@ bool global;
 class bde
 {
 	private:
+	double a;
+	ex ex;
+
 	bde(double c)
 	{
-		while(c+10 >= a && c-10 < a || func(1.52, ex.g))
+		while(c+10.0 >= a && c-10.5 < a || func(1.52, ex.g))
 		{i=i-1;
 		c = c / i;}
 	}
 
 	public:
-	bool func(int c, double g)
-{
-	if(c >= 5 && c != g)
-		return 5+c*g;
-	else
-{	
-	c = g *15;
-	g = 18 - 5 * 9.5;
-	return c % g;
-}
+	bool func(bde c, double g)
+	{
+		if(c >= 5 && c != g)
+			return 5+c*g;
+		else
+	{	
+		c = g *15;
+		g = 18 - 5 * 9.5;
+		return c % g;
+	}
 }
 };
 

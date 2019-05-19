@@ -9,6 +9,8 @@
 //type handling in ast -- to be thought through
 //backtracking -> one parser member variable instead of current joggling between methods
 
+//check duplicates -> wrong error number
+
 using namespace std;
 
 int main(int argc, char* argv[])
@@ -25,6 +27,7 @@ int main(int argc, char* argv[])
     FileSource source(filename, err_man);
     Lexer lex(source, err_man);
     Parser par(lex, err_man);
+    SemanticAnaliser sem(par, err_man);
 /*
     Token t;// = lex.getToken();
     do
@@ -42,8 +45,7 @@ int main(int argc, char* argv[])
     
     try 
     {
-        ast::Node root = par.parse();
-        root.printTree();
+        sem.analyse();
     }
     catch(std::runtime_error e)
     {

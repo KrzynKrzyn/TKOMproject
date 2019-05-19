@@ -1,5 +1,5 @@
 CC = g++
-CPPFLAGS = -O2 -Wall -Wextra -pedantic -std=c++11 -I./include
+CPPFLAGS = -O2 -Wall -Wextra -pedantic -std=c++14 -I./include
 
 SRC_DIR = ./src
 HPP_DIR = ./include

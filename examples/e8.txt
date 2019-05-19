@@ -1,0 +1,23 @@
+int a, g, f;
+bool c,d;
+
+bool de()
+{
+	double cd;
+	cd = 18.0;
+}
+
+int main()
+{
+	int d;
+	if(c && g > a + f)
+	{
+		d = 8;
+	}
+
+	g + f;
+	d = 5;
+	a = d;
+
+	return a;
+}
