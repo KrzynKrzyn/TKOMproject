@@ -1,0 +1,21 @@
+class exampleClass
+{
+    private:
+        int val;
+        
+    public:
+        exampleClass()
+        {
+            val = 5;
+        }
+        
+        exampleClass(int a)
+        {
+            val = a;
+        }
+};
+
+int main()
+{
+    exampleClass a;
+}

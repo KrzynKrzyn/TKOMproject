@@ -5,12 +5,14 @@ bool de()
 {
 	double cd;
 	cd = 18.0;
+
+	return true;
 }
 
 int main()
 {
 	int d;
-	if(c && g > a + f)
+	if(c && g > a + f || de())
 	{
 		d = 8;
 	}

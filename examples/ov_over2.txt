@@ -1,0 +1,17 @@
+int a;
+
+int foo(int arg)
+{
+    return a * arg;    
+}
+
+void bar()
+{
+    a = foo(10);
+}
+
+int main()
+{
+    a = 7;
+    return 0;
+}

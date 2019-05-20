@@ -1,0 +1,17 @@
+class example
+{
+    private:
+        double val;
+    public:
+        double getVal()
+        {
+            return val;
+        }
+};
+
+int main(int arg)
+{
+    example ex;
+    ex.getVal();
+    return 0;
+}

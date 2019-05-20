@@ -1,0 +1,18 @@
+int foo(int arg)
+{
+    return 2 - arg;    
+}
+
+int foo(bool arg)
+{
+    if(arg) return 5;
+    else return 8;
+}
+
+int main()
+{
+    int a;
+    a = foo(15);
+    
+    return 0;
+}

@@ -97,13 +97,7 @@ class SemanticAnaliser
         std::map<std::string, Func>::iterator declareFunc(ast::Node &root, bool priv = false);
         std::map<std::string, Class>::iterator declareClass(ast::Node &n);
 
-        //checkStatement
-        //checkREturn
-        //checkAssignment
-        //checkExpression
-
-        //checkCident
-        //checkFunction
+        std::string extractFuncClass(ast::Node &root);
 
         std::string checkTypeUniformity(ast::Node &root);
         std::string checkType(ast::Node &root, std::string type_name);

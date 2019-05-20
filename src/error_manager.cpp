@@ -6,9 +6,9 @@ std::unordered_map<Error::Type, std::string, EnumClassHash> ErrorManager::error_
         {Error::Type::Bad_identifier, "Invalid identifier!"},
         {Error::Type::Unknown_symbol, "Unknown symbol!"},
         {Error::Type::Unexpected_token, "Unexpected token!"},
-        {Error::Type::Uninitialized_variable, "Uninitialized variable!"},
-        {Error::Type::Uninitialized_function, "Uninitialized function!"},
-        {Error::Type::Uninitialized_class, "Uninitialized class!"},
+        {Error::Type::Uninitialized_variable, "Undeclared variable!"},
+        {Error::Type::Uninitialized_function, "Undeclared function!"},
+        {Error::Type::Uninitialized_class, "Undeclared class!"},
         {Error::Type::Multi_initialization, "Multiple initialization!"},
         {Error::Type::Bad_constructor, "Constructor name doesn't match class name!"},
         {Error::Type::Bad_type, "Types doesn't match!"},
@@ -57,11 +57,12 @@ void ErrorManager::handleError(Error err)
 
 std::vector<std::string> ErrorManager::getWarnings()
 {
-    std::vector<std::string> ret(noncritical_errors.size());
+    std::vector<std::string> ret;
+    ret.reserve(noncritical_errors.size());
 
     while(noncritical_errors.size() > 0)
     {
-        ret.push_back(getInfo(noncritical_errors.back()));
+        ret.push_back(getInfo(noncritical_errors.front()));
         noncritical_errors.pop();
     }
 

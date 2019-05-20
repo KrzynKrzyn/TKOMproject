@@ -1,0 +1,11 @@
+int foo(int arg)
+{
+    return 3 * arg;  
+}
+
+int main()
+{
+    int a;
+    a = foo(2);
+    return 0;
+}

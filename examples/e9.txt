@@ -1,0 +1,45 @@
+class sub
+{
+	public:
+		int pub_int;
+		double ced(double e)
+		{
+			return e * 8.0;
+		}
+};
+
+class ex
+{
+	private:
+		int a,b;
+		
+		bool bool_var;
+		
+	public:
+		ex tutu;
+		int pub_int;
+	public:
+		double c,d;
+		sub s;
+
+		ex(int a_, int b_)
+		{
+			a= a_;
+			b= b_;
+		}
+};
+
+int func()
+{
+}
+
+int main()
+{
+	ex Examp;
+	sub sss;
+
+	func();
+	Examp = ex(8,9);
+
+	Examp.c = Examp.tutu.s.ced(8.0);
+}

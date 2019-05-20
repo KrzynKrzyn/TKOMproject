@@ -1,0 +1,24 @@
+class exampleClass
+{
+    private:
+        bool val;
+        
+    public:
+        exampleClass()
+        {
+            val = false;
+        }
+        exampleClass(bool b)
+        {
+            val = b;
+        }
+        void foo()
+        {
+            exampleClass ex;
+            ex = exampleClass(false);
+        }
+};
+int main()
+{
+    return 0;
+}
