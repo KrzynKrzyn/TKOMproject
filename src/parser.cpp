@@ -54,7 +54,7 @@ Token Parser::acceptToken()
 Token Parser::acceptToken(Token::Type type)
 {
     Token t = peekToken();
-//std::cout << "DEBUG: " << '\t' << t.toString() << '\t' << Token(type,0,0).toString() << std::endl;
+std::cout << "DEBUG: " << '\t' << t.toString() << '\t' << Token(type,0,0).toString() << std::endl;
     if(t.getType() == type) tokens.pop_front();
     else error_manager.handleError(Error(Error::Type::Unexpected_token, t.getLine(), t.getPosition()));
 
@@ -64,7 +64,7 @@ Token Parser::acceptToken(Token::Type type)
 Token Parser::acceptToken(std::set<Token::Type> types)
 {
     Token t = peekToken();
-//std::cout << "DEBUG: " << '\t' << t.toString() << std::endl;
+std::cout << "DEBUG: " << '\t' << t.toString() << std::endl;
     if(expectToken(types,0)) tokens.pop_front();
     else error_manager.handleError(Error(Error::Type::Unexpected_token, t.getLine(), t.getPosition()));
 
@@ -362,7 +362,7 @@ void Parser::arithm_ele(ast::Node& n, ast::Node backtracking)   //OK (w/o unary 
             return;
         }
     }
-    else signalError();
+    else signalError(); //TODO
 }
 
 void Parser::simple_expr2(ast::Node& n, ast::Node backtracking) //OK

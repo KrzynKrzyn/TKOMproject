@@ -13,6 +13,7 @@ class fool
 	int a() { return control; }
 	fool f;
 
+
 	fool(int a, int b)
 {
 	control = b;
@@ -23,6 +24,11 @@ public:
 	{
 
 	}
+
+	fool fool()
+{
+	return fool(a,control);
+}
 	
 };
 
@@ -31,7 +37,7 @@ int main()
 
 	fool f;
 	
-	a = f.f.a();
+	f = f.f.();
 	
 	return 0;
 }
