@@ -1,0 +1,43 @@
+int a, global;
+
+int a()
+{ return global; }
+
+int fool(int a)
+{ return a;}
+
+class fool
+{
+	public:
+	int b, control;
+	int a() { return control; }
+
+	fool(int a, int b)
+{
+	control = b;
+	
+}
+public:
+	fool()
+	{
+
+	}
+	
+};
+
+int main()
+{
+
+	fool f;
+
+	if(f == fool(5, 6))
+	{
+		f = fooo(5,10);
+f = fooo(5,10);
+	}
+		
+	a = f.a();
+	
+	return 0;
+}
+

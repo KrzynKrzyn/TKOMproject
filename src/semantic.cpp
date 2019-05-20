@@ -72,11 +72,11 @@ std::map<std::string, Var>::iterator SemanticAnaliser::getVar(std::string sym, s
     std::map<std::string, Var>::iterator found;
 
     for(std::map<std::string,Var> &var_map : scope_stack)
-        if((found = var_map.find(sym)) != var_map.end()) 
-        {
-            found->second.usage_count++;
-            return found;
-        }
+    if((found = var_map.find(sym)) != var_map.end()) 
+    {
+        found->second.usage_count++;
+        return found;
+    }
 
     if(class_name != std::string())
     {
@@ -223,7 +223,7 @@ std::map<std::string, Func>::iterator SemanticAnaliser::declareFunc(ast::Node &r
 
     new_func.name = new_func.getPrototype();
 
-    if(private_access != std::string()) //what if it is constructor?
+    if(private_access != std::string())
     {           
         Class& c = getClass(private_access)->second;
         checkDuplicates(new_func.name, c.class_funcs);
@@ -270,7 +270,8 @@ void SemanticAnaliser::checkSemantics(ast::Node &root)
         }
         else if(n.production.name == "Statement")
         {
-            checkSemantics(n);
+            for(size_t j=0; j<n.children.size(); ++j)
+                checkSemantics(n.children[j]);
         }
         else if(n.production.name == "Return statement")
         {
@@ -308,7 +309,13 @@ std::string SemanticAnaliser::checkTypeUniformity(ast::Node &root)
 
     //std::cout << "Prod: " << root.production.name << std::endl;
 
-    if(root.production.name == "Function") return checkFunction(root);
+    if(root.production.name == "Function") 
+    {
+        if(root.children.front().children.size() == 0 && classes.find(root.children.front().production.value) != classes.end()) 
+            return checkConstructor(root);  //TODO findDecl or something
+
+        return checkFunction(root);
+    }
     if(root.production.name == "Complex identifier") return checkVar(root);
     if(root.production.name == "Int") return "int";
     if(root.production.name == "Bool") return "bool";
@@ -337,23 +344,41 @@ std::string SemanticAnaliser::checkType(ast::Node &root, std::string type_name)
     return ret;
 }
 
-std::string SemanticAnaliser::checkFunction(ast::Node &root)
+std::string SemanticAnaliser::checkFunction(ast::Node &root)    //checkConstructor()
 {
     Func used_func;
-    if(root.children[0].children.size() == 0)
-        used_func.name = root.children[0].production.value;
-    else
-        used_func.name = root.children[0].children.back().production.value;
 
     used_func.line = root.production.row;
     used_func.pos = root.production.pos;
+
+    if(root.children[0].children.size() == 0)
+        used_func.name = root.children[0].production.value;
+    else
+        used_func.name = root.children[0].children.back().production.value; //TODO?
 
     for(size_t i=1; i<root.children.size(); ++i)
         used_func.arg_types.push_back(checkTypeUniformity(root.children[i]));
 
     used_func.name = used_func.getPrototype();
-std::cout << used_func.name << "-:-" << used_func.type << std::endl;
+
     return getFunc(used_func.name, extractFuncClass(root))->second.type;
+}
+
+std::string SemanticAnaliser::checkConstructor(ast::Node &root)
+{
+    Func used_func;
+
+    used_func.line = root.production.row;
+    used_func.pos = root.production.pos;
+
+    std::string class_name = root.children[0].production.value;
+
+    for(size_t i=1; i<root.children.size(); ++i)
+        used_func.arg_types.push_back(checkTypeUniformity(root.children[i]));
+
+    used_func.name = used_func.getPrototype();
+
+    return getFunc(used_func.name, class_name)->second.type;
 }
 
 std::string SemanticAnaliser::checkVar(ast::Node &root)

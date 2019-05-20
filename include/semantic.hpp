@@ -80,15 +80,6 @@ class SemanticAnaliser
         void checkDuplicates(std::string sym, std::map<std::string, Func>& symbols);
         void checkDuplicates(std::string sym, std::map<std::string, Class>& symbols);
 
-        //void checkDuplicates(std::string sym, std::map<std::string, Symbol>& symbols);
-        //void checkDuplicates(std::string sym, std::vector<std::map<std::string, Symbol>>& symbols);
-
-        //void checkDuplicates(std::string sym, std::vector<std::map<std::string, Symbol>>& symbols);
-        //void checkDuplicates(std::string sym, std::map<std::string, Symbol>& symbols);
-
-        //void checkDeclaration(std::string sym, std::vector<std::map<std::string, Symbol>>& symbols);
-        //void checkDeclaration(std::string sym, std::map<std::string, Symbol>& symbols);
-
         std::map<std::string, Var>::iterator getVar(std::string sym, std::string class_name = std::string());
         std::map<std::string, Func>::iterator getFunc(std::string sym, std::string class_name = std::string());
         std::map<std::string, Class>::iterator getClass(std::string class_name);
@@ -102,6 +93,7 @@ class SemanticAnaliser
         std::string checkTypeUniformity(ast::Node &root);
         std::string checkType(ast::Node &root, std::string type_name);
         std::string checkFunction(ast::Node &root);
+        std::string checkConstructor(ast::Node &root);
         std::string checkVar(ast::Node &root);
 
         void checkSemantics(ast::Node &root);

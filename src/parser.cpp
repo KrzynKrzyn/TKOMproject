@@ -559,4 +559,6 @@ void Parser::program(ast::Node& n)  //OK
         }
         else break;
     }
+
+    if(peekToken().getType() != Token::Type::Eof) signalError();
 }

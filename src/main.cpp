@@ -11,6 +11,7 @@
 
 //check duplicates -> wrong error number
 //TODO constructors
+//TODO cid gets wrong var if var overloaded
 
 using namespace std;
 
