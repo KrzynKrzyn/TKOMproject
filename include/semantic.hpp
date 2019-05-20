@@ -83,8 +83,6 @@ class SemanticAnaliser
         void openScope();
         void closeScope();
 
-        bool findDecl(std::string sym, std::map<std::string,Symbol> &smap);
-
         void checkDuplicates(Symbol sym, std::vector<std::map<std::string, Var>>& symbols);
         void checkDuplicates(Symbol sym, std::map<std::string, Var>& symbols);
         void checkDuplicates(Symbol sym, std::map<std::string, Func>& symbols);
@@ -97,7 +95,7 @@ class SemanticAnaliser
 
         void declareVar(ast::Node &root, bool priv = false);
         void declareFunc(ast::Node &root, bool priv = false);
-        void declareClass(ast::Node &n);
+        void declareClass(ast::Node &root);
 
         std::string extractFuncClass(ast::Node &root);
 

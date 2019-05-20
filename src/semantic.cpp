@@ -18,11 +18,6 @@ void SemanticAnaliser::closeScope()
     scope_stack.pop_back();
 }
 
-bool SemanticAnaliser::findDecl(std::string sym, std::map<std::string,Symbol> &smap)
-{
-    return smap.find(sym) != smap.end();
-}
-
 void SemanticAnaliser::checkDuplicates(Symbol sym, std::vector<std::map<std::string, Var>>& symbols)
 {
     for(std::map<std::string, Var>& smap : symbols)
@@ -64,8 +59,6 @@ void SemanticAnaliser::checkDuplicates(std::string sym, std::map<std::string, Sy
         error_manager.handleError(Error(Error::Type::Multi_initialization, found->second.line, found->second.pos));  
 }
 */
-//void SemanticAnaliser::checkDeclaration(std::string sym, std::vector<std::map<std::string, Symbol>>& symbols);
-//void SemanticAnaliser::checkDeclaration(std::string sym, std::map<std::string, Symbol>& symbols);
 
 std::map<std::string, Var>::iterator SemanticAnaliser::getMemberVar(Symbol sym, std::string class_name)
 {
@@ -291,21 +284,19 @@ void SemanticAnaliser::checkSemantics(ast::Node &root)
             for(size_t j=1; j<n.children.size(); ++j)
                 checkSemantics(n.children[j]);                      
         }
-        /*else if(n.production.name == "Statement")   //not needed?
-        {
-            for(size_t j=0; j<n.children.size(); ++j)
-                checkSemantics(n.children[j]);
-        }*/
         else if(n.production.name == "Return statement")    //TODO
         {
             std::string unitype = checkTypeUniformity(n);//std::cout << "UNi: "<< unitype << "\tNuni: "<< root.production.value << std::endl;
+            
             if(root.production.value == "void" && unitype != std::string()) 
                 error_manager.handleError(Error(Error::Type::Bad_return, n.production.row, n.production.pos));
-            else if(root.production.value != unitype)
+            else if(root.production.value != "void" && root.production.value != unitype)
                 error_manager.handleError(Error(Error::Type::Bad_return, n.production.row, n.production.pos));
         }
         else
         {
+            if(n.production.name != "Assignment" && n.production.name != "Function") 
+                error_manager.handleError(Error(Error::Type::Unused_const, n.production.row, n.production.pos));
             checkTypeUniformity(n);
         }
 

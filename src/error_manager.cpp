@@ -10,11 +10,11 @@ std::unordered_map<Error::Type, std::string, EnumClassHash> ErrorManager::error_
         {Error::Type::Uninitialized_variable, "Undeclared variable!"},
         {Error::Type::Uninitialized_function, "Undeclared function!"},
         {Error::Type::Uninitialized_class, "Undeclared class!"},
-        {Error::Type::Multi_initialization, "Multiple initialization!"},
+        {Error::Type::Multi_initialization, "Multiple declaration!"},
         {Error::Type::Bad_constructor, "Constructor name doesn't match class name!"},
         {Error::Type::Bad_type, "Types doesn't match!"},
         {Error::Type::Bad_return, "Return type doesn't match function type!"},
-        {Error::Type::Unused_const, "Unused const!"},
+        {Error::Type::Unused_const, "Unused expression!"},
         {Error::Type::Unused_variable, "Unused variable!"},
         {Error::Type::Unused_function, "Unused function!"},
         {Error::Type::Unused_constructor, "Unused constructor!"},
@@ -41,8 +41,8 @@ std::string ErrorManager::getMessage(Error err) const
 std::string ErrorManager::getInfo(Error err) const
 {
     return std::string("Line: " + std::to_string(err.getLine()) +
-                        "\tPosition: " + std::to_string(err.getPosition()) +
-                        "\t" + getSeverity(err) + ": " + getMessage(err));    
+                        " \tPosition: " + std::to_string(err.getPosition()) +
+                        " \t" + getSeverity(err) + ": " + getMessage(err));    
 }
 
 void ErrorManager::handleError(Error err)
