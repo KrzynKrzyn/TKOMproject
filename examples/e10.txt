@@ -9,8 +9,9 @@ int fool(int a)
 class fool
 {
 	public:
-	int b, control;
+	int a, b, control;
 	int a() { return control; }
+	fool f;
 
 	fool(int a, int b)
 {
@@ -29,14 +30,8 @@ int main()
 {
 
 	fool f;
-
-	if(f == fool(5, 6))
-	{
-		f = fooo(5,10);
-f = fooo(5,10);
-	}
-		
-	a = f.a();
+	
+	a = f.f.a();
 	
 	return 0;
 }

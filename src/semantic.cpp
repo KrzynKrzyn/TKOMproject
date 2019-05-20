@@ -67,6 +67,29 @@ void SemanticAnaliser::checkDuplicates(std::string sym, std::map<std::string, Sy
 //void SemanticAnaliser::checkDeclaration(std::string sym, std::vector<std::map<std::string, Symbol>>& symbols);
 //void SemanticAnaliser::checkDeclaration(std::string sym, std::map<std::string, Symbol>& symbols);
 
+std::map<std::string, Var>::iterator SemanticAnaliser::getMemberVar(std::string sym, std::string class_name)
+{
+    std::map<std::string, Var>::iterator found;
+
+    Class& c = getClass(class_name)->second;
+    if((found = c.class_vars.find(sym)) != c.class_vars.end())
+    {
+        found->second.usage_count++;
+        return found;
+    }
+
+    if(class_name == private_access)
+    if((found = c.private_vars.find(sym)) != c.private_vars.end())         
+    {
+        found->second.usage_count++;
+        return found;
+    }
+
+    error_manager.handleError(Error(Error::Type::Uninitialized_variable, 0, 0));   //TODO, private as ininitialized blargh, then again undeclared not uninitialized
+
+    return found;
+}
+
 std::map<std::string, Var>::iterator SemanticAnaliser::getVar(std::string sym, std::string class_name)
 {
     std::map<std::string, Var>::iterator found;
@@ -248,6 +271,7 @@ void SemanticAnaliser::checkSemantics(ast::Node &root)
     //arguments
     size_t i = 1;
     if(root.production.name == "Constructor declaration") i = 0;    //TODO
+    if(root.production.name == "Statement" || root.production.name == "If statement" || root.production.name == "While statement") i = 0;    //TODO
 
     while(i < root.children.size() && root.children[i].production.name == "Argument")
         declareVar(root.children[i++]);
@@ -262,16 +286,19 @@ void SemanticAnaliser::checkSemantics(ast::Node &root)
         }
         else if(n.production.name == "If statement" || n.production.name == "While statement")
         {
-            //n.printTree();
             checkType(n.children[0], "bool");
             
             for(size_t j=1; j<n.children.size(); ++j)
-                checkSemantics(n.children[j]);
+                checkSemantics(n.children[j]);                      
         }
         else if(n.production.name == "Statement")
-        {
+        {std::cout << "Correnct" << std::endl;
             for(size_t j=0; j<n.children.size(); ++j)
+            {
+                std::cout << "SEMName: " << n.children[j].production.name << std::endl;
                 checkSemantics(n.children[j]);
+            }
+                
         }
         else if(n.production.name == "Return statement")
         {
@@ -391,7 +418,7 @@ std::string SemanticAnaliser::checkVar(ast::Node &root)
     for(ast::Node &n : root.children)
     {
         name = n.production.value;
-        v = getVar(name, next_class);
+        v = getMemberVar(name, next_class);
         next_class = getClass(v->second.type)->second.name;
     }
 
@@ -412,7 +439,7 @@ std::string SemanticAnaliser::extractFuncClass(ast::Node &root) //TODO
     for(int i=0; i+1<name_node.children.size(); i++)
     {
         name = name_node.children[i].production.value;
-        v = getVar(name, next_class);
+        v = getMemberVar(name, next_class);
         next_class = getClass(v->second.type)->second.name;
     }
 

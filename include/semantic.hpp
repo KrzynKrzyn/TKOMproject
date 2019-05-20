@@ -80,6 +80,7 @@ class SemanticAnaliser
         void checkDuplicates(std::string sym, std::map<std::string, Func>& symbols);
         void checkDuplicates(std::string sym, std::map<std::string, Class>& symbols);
 
+        std::map<std::string, Var>::iterator getMemberVar(std::string sym, std::string class_name);
         std::map<std::string, Var>::iterator getVar(std::string sym, std::string class_name = std::string());
         std::map<std::string, Func>::iterator getFunc(std::string sym, std::string class_name = std::string());
         std::map<std::string, Class>::iterator getClass(std::string class_name);
