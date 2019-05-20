@@ -12,7 +12,7 @@
     struct Symbol
     {
         std::string name;
-        std::string type;
+        //std::string type;
 
         int line, pos;
 
@@ -20,11 +20,11 @@
     };
 
     struct Var : Symbol
-    {
+    {std::string type;
     };
 
     struct Func : Symbol
-    {
+    {std::string type;
         std::vector<std::string> arg_types;
 
         std::string getPrototype() const

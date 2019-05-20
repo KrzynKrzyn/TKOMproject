@@ -54,7 +54,7 @@ Token Parser::acceptToken()
 Token Parser::acceptToken(Token::Type type)
 {
     Token t = peekToken();
-std::cout << "DEBUG: " << '\t' << t.toString() << '\t' << Token(type,0,0).toString() << std::endl;
+//std::cout << "DEBUG: " << '\t' << t.toString() << '\t' << Token(type,0,0).toString() << std::endl;
     if(t.getType() == type) tokens.pop_front();
     else error_manager.handleError(Error(Error::Type::Unexpected_token, t.getLine(), t.getPosition()));
 
@@ -64,7 +64,7 @@ std::cout << "DEBUG: " << '\t' << t.toString() << '\t' << Token(type,0,0).toStri
 Token Parser::acceptToken(std::set<Token::Type> types)
 {
     Token t = peekToken();
-std::cout << "DEBUG: " << '\t' << t.toString() << std::endl;
+//std::cout << "DEBUG: " << '\t' << t.toString() << std::endl;
     if(expectToken(types,0)) tokens.pop_front();
     else error_manager.handleError(Error(Error::Type::Unexpected_token, t.getLine(), t.getPosition()));
 
@@ -82,7 +82,7 @@ void Parser::c_ident(ast::Node& n)  //OK
     Token start = acceptToken(Token::Type::Ident);
     ast::Node& cident_node = n.attachNode("Complex identifier", start.getLine(), start.getPosition(), start.toStringExtra());
 
-    while(expectToken(Token::Type::Dot, 0))
+    while(expectToken(Token::Type::Dot))
     {
         acceptToken(Token::Type::Dot);
         Token ident = acceptToken(Token::Type::Ident);
@@ -361,6 +361,8 @@ void Parser::arithm_ele(ast::Node& n, ast::Node backtracking)   //OK (w/o unary 
 
             return;
         }
+
+        signalError();
     }
     else signalError(); //TODO
 }
@@ -437,6 +439,8 @@ void Parser::simple_st(ast::Node& n)    //OK
 
             return;
         }
+
+        signalError();
     }
     else signalError();
 }
@@ -445,7 +449,7 @@ void Parser::block_st(ast::Node& n) //OK
 {
     acceptToken(Token::Type::OpenCurly);
 
-    while(!expectToken(Token::Type::CloseCurly, 0)) simple_st(n);   //TBD
+    while(!expectToken(Token::Type::CloseCurly)) simple_st(n);   //TBD
 
     acceptToken(Token::Type::CloseCurly);
 }

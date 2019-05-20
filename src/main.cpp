@@ -10,8 +10,6 @@
 //backtracking -> one parser member variable instead of current joggling between methods
 
 //check duplicates -> wrong error number
-//TODO constructors
-//TODO cid gets wrong var if var overloaded
 
 using namespace std;
 
