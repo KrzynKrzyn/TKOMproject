@@ -17,14 +17,24 @@
         int line, pos;
 
         int usage_count = 0;
+/*
+        Symbol& operator=(const Symbol&) = default;
+
+        Symbol() = default;
+        Symbol(Symbol&) = default;
+        Symbol(Symbol&&) = default;*/
+        Symbol() {}
+        Symbol(std::string name_, int line_, int pos_): name(name_), line(line_), pos(pos_) {}
     };
 
     struct Var : Symbol
-    {std::string type;
+    {
+        std::string type;
     };
 
     struct Func : Symbol
-    {std::string type;
+    {
+        std::string type;
         std::vector<std::string> arg_types;
 
         std::string getPrototype() const
@@ -75,19 +85,19 @@ class SemanticAnaliser
 
         bool findDecl(std::string sym, std::map<std::string,Symbol> &smap);
 
-        void checkDuplicates(std::string sym, std::vector<std::map<std::string, Var>>& symbols);
-        void checkDuplicates(std::string sym, std::map<std::string, Var>& symbols);
-        void checkDuplicates(std::string sym, std::map<std::string, Func>& symbols);
-        void checkDuplicates(std::string sym, std::map<std::string, Class>& symbols);
+        void checkDuplicates(Symbol sym, std::vector<std::map<std::string, Var>>& symbols);
+        void checkDuplicates(Symbol sym, std::map<std::string, Var>& symbols);
+        void checkDuplicates(Symbol sym, std::map<std::string, Func>& symbols);
+        void checkDuplicates(Symbol sym, std::map<std::string, Class>& symbols);
 
-        std::map<std::string, Var>::iterator getMemberVar(std::string sym, std::string class_name);
-        std::map<std::string, Var>::iterator getVar(std::string sym, std::string class_name = std::string());
-        std::map<std::string, Func>::iterator getFunc(std::string sym, std::string class_name = std::string());
-        std::map<std::string, Class>::iterator getClass(std::string class_name);
+        std::map<std::string, Var>::iterator getMemberVar(Symbol sym, std::string class_name);
+        std::map<std::string, Var>::iterator getVar(Symbol sym, std::string class_name = std::string());
+        std::map<std::string, Func>::iterator getFunc(Symbol sym, std::string class_name = std::string());
+        std::map<std::string, Class>::iterator getClass(Symbol class_name);
 
-        std::map<std::string, Var>::iterator declareVar(ast::Node &root, bool priv = false);
-        std::map<std::string, Func>::iterator declareFunc(ast::Node &root, bool priv = false);
-        std::map<std::string, Class>::iterator declareClass(ast::Node &n);
+        void declareVar(ast::Node &root, bool priv = false);
+        void declareFunc(ast::Node &root, bool priv = false);
+        void declareClass(ast::Node &n);
 
         std::string extractFuncClass(ast::Node &root);
 

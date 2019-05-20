@@ -36,9 +36,21 @@ fool f;
 
 int main()
 {f.f.fool();
-
 	fool f;
-	
+	if(fool(2,3) == f)
+	{
+		return;
+	}
+	else
+	{
+		int i;
+		i =0;
+		while(i < 5)
+		{
+			i = i + 1;
+			f. a();
+		}
+	}
 	f = f.f.fool();
 	f = fool(5 , 10);
 	

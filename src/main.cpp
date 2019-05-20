@@ -50,6 +50,8 @@ int main(int argc, char* argv[])
     catch(std::runtime_error e)
     {
         cout << e.what() << endl;
+        std::vector<std::string> warnings = err_man.getWarnings();
+        for(std::string w : warnings) cout << w << endl;
         return 1;
     }
     

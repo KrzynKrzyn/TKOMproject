@@ -23,31 +23,31 @@ bool SemanticAnaliser::findDecl(std::string sym, std::map<std::string,Symbol> &s
     return smap.find(sym) != smap.end();
 }
 
-void SemanticAnaliser::checkDuplicates(std::string sym, std::vector<std::map<std::string, Var>>& symbols)
+void SemanticAnaliser::checkDuplicates(Symbol sym, std::vector<std::map<std::string, Var>>& symbols)
 {
     for(std::map<std::string, Var>& smap : symbols)
         checkDuplicates(sym, smap);
 }
 
-void SemanticAnaliser::checkDuplicates(std::string sym, std::map<std::string, Var>& symbols)    //triple repetition + bad error pos TODO
+void SemanticAnaliser::checkDuplicates(Symbol sym, std::map<std::string, Var>& symbols)    //triple repetition TODO
 {
-    auto found = symbols.find(sym);
+    auto found = symbols.find(sym.name);
     if(found != symbols.end()) 
-        error_manager.handleError(Error(Error::Type::Multi_initialization, found->second.line, found->second.pos));  
+        error_manager.handleError(Error(Error::Type::Multi_initialization, sym.line, sym.pos));  
 }
 
-void SemanticAnaliser::checkDuplicates(std::string sym, std::map<std::string, Func>& symbols)
+void SemanticAnaliser::checkDuplicates(Symbol sym, std::map<std::string, Func>& symbols)
 {
-    auto found = symbols.find(sym);
+    auto found = symbols.find(sym.name);
     if(found != symbols.end()) 
-        error_manager.handleError(Error(Error::Type::Multi_initialization, found->second.line, found->second.pos));  
+        error_manager.handleError(Error(Error::Type::Multi_initialization, sym.line, sym.pos));  
 }
 
-void SemanticAnaliser::checkDuplicates(std::string sym, std::map<std::string, Class>& symbols)
+void SemanticAnaliser::checkDuplicates(Symbol sym, std::map<std::string, Class>& symbols)
 {
-    auto found = symbols.find(sym);
+    auto found = symbols.find(sym.name);
     if(found != symbols.end()) 
-        error_manager.handleError(Error(Error::Type::Multi_initialization, found->second.line, found->second.pos));  
+        error_manager.handleError(Error(Error::Type::Multi_initialization, sym.line, sym.pos));  
 }
 
 /*
@@ -67,35 +67,35 @@ void SemanticAnaliser::checkDuplicates(std::string sym, std::map<std::string, Sy
 //void SemanticAnaliser::checkDeclaration(std::string sym, std::vector<std::map<std::string, Symbol>>& symbols);
 //void SemanticAnaliser::checkDeclaration(std::string sym, std::map<std::string, Symbol>& symbols);
 
-std::map<std::string, Var>::iterator SemanticAnaliser::getMemberVar(std::string sym, std::string class_name)
+std::map<std::string, Var>::iterator SemanticAnaliser::getMemberVar(Symbol sym, std::string class_name)
 {
     std::map<std::string, Var>::iterator found;
 
-    Class& c = getClass(class_name)->second;
-    if((found = c.class_vars.find(sym)) != c.class_vars.end())
+    Class& c = getClass(Symbol(class_name, sym.line, sym.pos))->second;
+    if((found = c.class_vars.find(sym.name)) != c.class_vars.end())
     {
         found->second.usage_count++;
         return found;
     }
 
     if(class_name == private_access)
-    if((found = c.private_vars.find(sym)) != c.private_vars.end())         
+    if((found = c.private_vars.find(sym.name)) != c.private_vars.end())         
     {
         found->second.usage_count++;
         return found;
     }
 
-    error_manager.handleError(Error(Error::Type::Uninitialized_variable, 0, 0));   //TODO, private as ininitialized blargh, then again undeclared not uninitialized
+    error_manager.handleError(Error(Error::Type::Uninitialized_variable, sym.line, sym.pos));   //TODO, private as ininitialized blargh, then again undeclared not uninitialized
 
     return found;
 }
 
-std::map<std::string, Var>::iterator SemanticAnaliser::getVar(std::string sym, std::string class_name)
+std::map<std::string, Var>::iterator SemanticAnaliser::getVar(Symbol sym, std::string class_name)
 {
     std::map<std::string, Var>::iterator found;
 
     for(std::map<std::string,Var> &var_map : scope_stack)
-    if((found = var_map.find(sym)) != var_map.end()) 
+    if((found = var_map.find(sym.name)) != var_map.end()) 
     {
         found->second.usage_count++;
         return found;
@@ -103,80 +103,80 @@ std::map<std::string, Var>::iterator SemanticAnaliser::getVar(std::string sym, s
 
     if(class_name != std::string())
     {
-        Class& c = getClass(class_name)->second;
-        if((found = c.class_vars.find(sym)) != c.class_vars.end())
+        Class& c = getClass(Symbol(class_name, sym.line, sym.pos))->second;
+        if((found = c.class_vars.find(sym.name)) != c.class_vars.end())
         {
             found->second.usage_count++;
             return found;
         }
 
         if(class_name == private_access)
-        if((found = c.private_vars.find(sym)) != c.private_vars.end())         
+        if((found = c.private_vars.find(sym.name)) != c.private_vars.end())         
         {
             found->second.usage_count++;
             return found;
         }
     }
 
-    if((found = global_vars.find(sym)) != global_vars.end())
+    if((found = global_vars.find(sym.name)) != global_vars.end())
     {
         found->second.usage_count++;
         return found;
     } 
 
-    error_manager.handleError(Error(Error::Type::Uninitialized_variable, 0, 0));   //TODO, private as ininitialized blargh, then again undeclared not uninitialized
+    error_manager.handleError(Error(Error::Type::Uninitialized_variable, sym.line, sym.pos));    //TODO, private as ininitialized blargh, then again undeclared not uninitialized
 
     return found;
 }
 
-std::map<std::string, Func>::iterator SemanticAnaliser::getFunc(std::string sym, std::string class_name)
+std::map<std::string, Func>::iterator SemanticAnaliser::getFunc(Symbol sym, std::string class_name)
 {
     std::map<std::string, Func>::iterator found;
 
     if(class_name != std::string())
     {
-        Class& c = getClass(class_name)->second;
-        if((found = c.class_funcs.find(sym)) != c.class_funcs.end()) 
+        Class& c = getClass(Symbol(class_name, sym.line, sym.pos))->second;
+        if((found = c.class_funcs.find(sym.name)) != c.class_funcs.end()) 
         {
             found->second.usage_count++;
             return found;
         }
 
         if(class_name == private_access) 
-        if((found = c.private_funcs.find(sym)) != c.private_funcs.end()) 
+        if((found = c.private_funcs.find(sym.name)) != c.private_funcs.end()) 
         {
             found->second.usage_count++;
             return found;
         }
     }
     
-    if((found = global_funcs.find(sym)) != global_funcs.end()) 
+    if((found = global_funcs.find(sym.name)) != global_funcs.end()) 
     {
         found->second.usage_count++;
         return found;
     }
     
-    error_manager.handleError(Error(Error::Type::Uninitialized_function, 0, 0));   //TODO
+    error_manager.handleError(Error(Error::Type::Uninitialized_function, sym.line, sym.pos));
 
     return found;
 }
 
-std::map<std::string, Class>::iterator SemanticAnaliser::getClass(std::string class_name)
+std::map<std::string, Class>::iterator SemanticAnaliser::getClass(Symbol class_name)
 {
     std::map<std::string, Class>::iterator found;
 
-    if((found = classes.find(class_name)) != classes.end()) 
+    if((found = classes.find(class_name.name)) != classes.end()) 
     {
         if(private_access != found->second.name) found->second.usage_count++;
         return found;
     }
 
-    error_manager.handleError(Error(Error::Type::Uninitialized_class, 0, 0));   //TODO
+    error_manager.handleError(Error(Error::Type::Uninitialized_class, class_name.line, class_name.pos));
 
     return found;
 }
 
-std::map<std::string, Var>::iterator SemanticAnaliser::declareVar(ast::Node &root, bool priv)
+void SemanticAnaliser::declareVar(ast::Node &root, bool priv)
 {
     for(ast::Node &n : root.children)
     {
@@ -186,34 +186,34 @@ std::map<std::string, Var>::iterator SemanticAnaliser::declareVar(ast::Node &roo
         new_var.pos = n.production.pos;
         new_var.line = n.production.row;
 
-        getClass(new_var.type);
+        getClass(Symbol(new_var.type, new_var.line, new_var.pos));
 
         if(scope_stack.size() == 0)
         {     
             if(private_access != std::string())
             {           
-                Class& c = getClass(private_access)->second;
-                checkDuplicates(new_var.name, c.class_vars);
-                checkDuplicates(new_var.name, c.private_vars);
+                Class& c = getClass(Symbol(private_access, new_var.line, new_var.pos))->second;
+                checkDuplicates(new_var, c.class_vars);
+                checkDuplicates(new_var, c.private_vars);
 
                 if(!priv) c.class_vars[new_var.name] = new_var; //std::move?
                 else c.private_vars[new_var.name] = new_var;
             }
             else
             {
-                checkDuplicates(new_var.name, global_vars);
+                checkDuplicates(new_var, global_vars);
                 global_vars[new_var.name] = new_var;
             }
         }
         else 
         {
-            checkDuplicates(new_var.name, scope_stack);
+            checkDuplicates(new_var, scope_stack);
             scope_stack.back()[new_var.name] = new_var;
         }
     }
 }
 
-std::map<std::string, Func>::iterator SemanticAnaliser::declareFunc(ast::Node &root, bool priv) //TODO CONSTRUCTORS
+void SemanticAnaliser::declareFunc(ast::Node &root, bool priv) //TODO CONSTRUCTORS
 {
     Func new_func;
     new_func.type = root.production.value;
@@ -232,7 +232,7 @@ std::map<std::string, Func>::iterator SemanticAnaliser::declareFunc(ast::Node &r
     }
     else
     {
-        getClass(new_func.type);
+        getClass(Symbol(new_func.type, new_func.line, new_func.pos));
 
         new_func.name = root.children[0].production.value;
         i = 1;
@@ -240,7 +240,7 @@ std::map<std::string, Func>::iterator SemanticAnaliser::declareFunc(ast::Node &r
     
     while(i < root.children.size() && root.children[i].production.name == "Argument")
     {
-        getClass(root.children[i].production.value);
+        getClass(Symbol(root.children[i].production.value, root.children[i].production.row, root.children[i].production.pos));
         new_func.arg_types.push_back(root.children[i++].production.value);
     }
 
@@ -248,16 +248,16 @@ std::map<std::string, Func>::iterator SemanticAnaliser::declareFunc(ast::Node &r
 
     if(private_access != std::string())
     {           
-        Class& c = getClass(private_access)->second;
-        checkDuplicates(new_func.name, c.class_funcs);
-        checkDuplicates(new_func.name, c.private_funcs);
+        Class& c = getClass(Symbol(private_access, new_func.line, new_func.pos))->second;
+        checkDuplicates(new_func, c.class_funcs);
+        checkDuplicates(new_func, c.private_funcs);
 
         if(!priv) c.class_funcs[new_func.name] = new_func; //std::move?
         else c.private_funcs[new_func.name] = new_func;
     }
     else
     {
-        checkDuplicates(new_func.name, global_funcs);
+        checkDuplicates(new_func, global_funcs);
         global_funcs[new_func.name] = new_func;
     }
 
@@ -291,18 +291,14 @@ void SemanticAnaliser::checkSemantics(ast::Node &root)
             for(size_t j=1; j<n.children.size(); ++j)
                 checkSemantics(n.children[j]);                      
         }
-        else if(n.production.name == "Statement")
-        {std::cout << "Correnct" << std::endl;
-            for(size_t j=0; j<n.children.size(); ++j)
-            {
-                std::cout << "SEMName: " << n.children[j].production.name << std::endl;
-                checkSemantics(n.children[j]);
-            }
-                
-        }
-        else if(n.production.name == "Return statement")
+        /*else if(n.production.name == "Statement")   //not needed?
         {
-            std::string unitype = checkTypeUniformity(n);
+            for(size_t j=0; j<n.children.size(); ++j)
+                checkSemantics(n.children[j]);
+        }*/
+        else if(n.production.name == "Return statement")    //TODO
+        {
+            std::string unitype = checkTypeUniformity(n);//std::cout << "UNi: "<< unitype << "\tNuni: "<< root.production.value << std::endl;
             if(root.production.value == "void" && unitype != std::string()) 
                 error_manager.handleError(Error(Error::Type::Bad_return, n.production.row, n.production.pos));
             else if(root.production.value != unitype)
@@ -388,7 +384,7 @@ std::string SemanticAnaliser::checkFunction(ast::Node &root)    //checkConstruct
 
     used_func.name = used_func.getPrototype();
 
-    return getFunc(used_func.name, extractFuncClass(root))->second.type;
+    return getFunc(used_func, extractFuncClass(root))->second.type;
 }
 
 std::string SemanticAnaliser::checkConstructor(ast::Node &root)
@@ -405,21 +401,24 @@ std::string SemanticAnaliser::checkConstructor(ast::Node &root)
 
     used_func.name = used_func.getPrototype();
 
-    return getFunc(used_func.name, class_name)->second.type;
+    return getFunc(used_func, class_name)->second.type;
 }
 
 std::string SemanticAnaliser::checkVar(ast::Node &root)
 {
     std::string name = root.production.value;
+    int line = root.production.row, pos = root.production.pos;
+
     std::string next_class = private_access;
-    auto v = getVar(name, next_class);
-    next_class = getClass(v->second.type)->second.name;
+    auto v = getVar(Symbol(name, line, pos), next_class);
+    next_class = getClass(Symbol(v->second.type, line, pos))->second.name;
 
     for(ast::Node &n : root.children)
     {
         name = n.production.value;
-        v = getMemberVar(name, next_class);
-        next_class = getClass(v->second.type)->second.name;
+        line = n.production.row, pos = n.production.pos;
+        v = getMemberVar(Symbol(name, line, pos), next_class);
+        next_class = getClass(Symbol(v->second.type, line, pos))->second.name;
     }
 
     return next_class;
@@ -431,29 +430,32 @@ std::string SemanticAnaliser::extractFuncClass(ast::Node &root) //TODO
     if(name_node.children.size() == 0) return std::string();
 
     std::string name = name_node.production.value;
+    int line = name_node.production.row, pos = name_node.production.pos;
+
     std::string next_class = private_access;
 
-    auto v = getVar(name, next_class);
-    next_class = getClass(v->second.type)->second.name;
+    auto v = getVar(Symbol(name, line, pos), next_class);
+    next_class = getClass(Symbol(v->second.type, line, pos))->second.name;
 
-    for(int i=0; i+1<name_node.children.size(); i++)
+    for(size_t i=0; i+1<name_node.children.size(); i++)
     {
         name = name_node.children[i].production.value;
-        v = getMemberVar(name, next_class);
-        next_class = getClass(v->second.type)->second.name;
+        line = name_node.children[i].production.row, pos = name_node.children[i].production.pos;
+        v = getMemberVar(Symbol(name, line, pos), next_class);
+        next_class = getClass(Symbol(v->second.type, line, pos))->second.name;
     }
 
     return next_class;
 }
 
-std::map<std::string, Class>::iterator SemanticAnaliser::declareClass(ast::Node &root)
+void SemanticAnaliser::declareClass(ast::Node &root)
 {
     Class new_class;
     new_class.name = root.production.value;
     new_class.line = root.production.row;
     new_class.pos = root.production.pos;
 
-    checkDuplicates(new_class.name, classes);
+    checkDuplicates(new_class, classes);
     private_access = new_class.name;
     classes[new_class.name] = new_class;
 
@@ -547,12 +549,22 @@ void SemanticAnaliser::analyse()
             error_manager.handleError(Error(Error::Type::Unused_variable, v.second.line, v.second.pos));
 
         for(const auto &f : c.second.class_funcs)
-        if(f.second.usage_count == 0) 
-            error_manager.handleError(Error(Error::Type::Unused_function, f.second.line, f.second.pos));
+        if(f.second.usage_count == 0)
+        {
+            if(f.second.name.front() == '(')
+                error_manager.handleError(Error(Error::Type::Unused_constructor, f.second.line, f.second.pos));
+            else 
+                error_manager.handleError(Error(Error::Type::Unused_function, f.second.line, f.second.pos));
+        }
 
         for(const auto &f : c.second.private_funcs)
         if(f.second.usage_count == 0) 
-            error_manager.handleError(Error(Error::Type::Unused_function, f.second.line, f.second.pos));
+        {
+            if(f.second.name.front() == '(')
+                error_manager.handleError(Error(Error::Type::Unused_constructor, f.second.line, f.second.pos));
+            else 
+                error_manager.handleError(Error(Error::Type::Unused_function, f.second.line, f.second.pos));
+        }
     }
         
     std::vector<std::string> war = error_manager.getWarnings();

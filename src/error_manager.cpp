@@ -1,4 +1,5 @@
 #include "error_manager.hpp"
+#include <algorithm>
 
 std::unordered_map<Error::Type, std::string, EnumClassHash> ErrorManager::error_message =
     {
@@ -48,7 +49,7 @@ void ErrorManager::handleError(Error err)
 {
     if(err.getSeverity() == Error::Severity::Warning)
     {
-        noncritical_errors.push(err);
+        noncritical_errors.push_back(err);
         return;
     }
 
@@ -57,13 +58,19 @@ void ErrorManager::handleError(Error err)
 
 std::vector<std::string> ErrorManager::getWarnings()
 {
+    std::sort(noncritical_errors.begin(), noncritical_errors.end(), 
+        [](Error a, Error b)
+        {
+            return a.getLine() == b.getLine() ? a.getPosition() < b.getPosition() : a.getLine() < b.getLine();
+        });
+
     std::vector<std::string> ret;
     ret.reserve(noncritical_errors.size());
 
     while(noncritical_errors.size() > 0)
     {
         ret.push_back(getInfo(noncritical_errors.front()));
-        noncritical_errors.pop();
+        noncritical_errors.pop_front();
     }
 
     return ret;
