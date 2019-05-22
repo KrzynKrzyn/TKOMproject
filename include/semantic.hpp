@@ -79,6 +79,7 @@ class SemanticAnaliser
         std::vector<std::map<std::string, Var>> scope_stack;
 
         std::string private_access = std::string();
+        std::string function_return = std::string();
 
         void openScope();
         void closeScope();

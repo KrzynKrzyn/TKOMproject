@@ -78,7 +78,7 @@ std::map<std::string, Var>::iterator SemanticAnaliser::getMemberVar(Symbol sym, 
         return found;
     }
 
-    error_manager.handleError(Error(Error::Type::Uninitialized_variable, sym.line, sym.pos));   //TODO, private as ininitialized blargh, then again undeclared not uninitialized
+    error_manager.handleError(Error(Error::Type::Uninitialized_variable, sym.line, sym.pos));   //TODO, private as uninitialized blargh, then again undeclared not uninitialized
 
     return found;
 }
@@ -117,7 +117,7 @@ std::map<std::string, Var>::iterator SemanticAnaliser::getVar(Symbol sym, std::s
         return found;
     } 
 
-    error_manager.handleError(Error(Error::Type::Uninitialized_variable, sym.line, sym.pos));    //TODO, private as ininitialized blargh, then again undeclared not uninitialized
+    error_manager.handleError(Error(Error::Type::Uninitialized_variable, sym.line, sym.pos));    //TODO
 
     return found;
 }
@@ -220,6 +220,7 @@ void SemanticAnaliser::declareFunc(ast::Node &root, bool priv) //TODO CONSTRUCTO
             error_manager.handleError(Error(Error::Type::Bad_constructor, root.production.row, root.production.pos));
         
         new_func.name = std::string();
+        function_return = std::string();
 
         i = 0;
     }
@@ -228,6 +229,9 @@ void SemanticAnaliser::declareFunc(ast::Node &root, bool priv) //TODO CONSTRUCTO
         getClass(Symbol(new_func.type, new_func.line, new_func.pos));
 
         new_func.name = root.children[0].production.value;
+        if(new_func.type == "void") function_return = std::string();
+        else function_return = new_func.type;
+
         i = 1;
     }
     
@@ -288,10 +292,13 @@ void SemanticAnaliser::checkSemantics(ast::Node &root)
         {
             std::string unitype = checkTypeUniformity(n);//std::cout << "UNi: "<< unitype << "\tNuni: "<< root.production.value << std::endl;
             
+            if(unitype != function_return)
+                error_manager.handleError(Error(Error::Type::Bad_return, n.production.row, n.production.pos));
+            /*
             if(root.production.value == "void" && unitype != std::string()) 
                 error_manager.handleError(Error(Error::Type::Bad_return, n.production.row, n.production.pos));
             else if(root.production.value != "void" && root.production.value != unitype)
-                error_manager.handleError(Error(Error::Type::Bad_return, n.production.row, n.production.pos));
+                error_manager.handleError(Error(Error::Type::Bad_return, n.production.row, n.production.pos));*/
         }
         else
         {
