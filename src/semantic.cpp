@@ -290,15 +290,10 @@ void SemanticAnaliser::checkSemantics(ast::Node &root)
         }
         else if(n.production.name == "Return statement")    //TODO
         {
-            std::string unitype = checkTypeUniformity(n);//std::cout << "UNi: "<< unitype << "\tNuni: "<< root.production.value << std::endl;
+            std::string unitype = checkTypeUniformity(n);
             
             if(unitype != function_return)
                 error_manager.handleError(Error(Error::Type::Bad_return, n.production.row, n.production.pos));
-            /*
-            if(root.production.value == "void" && unitype != std::string()) 
-                error_manager.handleError(Error(Error::Type::Bad_return, n.production.row, n.production.pos));
-            else if(root.production.value != "void" && root.production.value != unitype)
-                error_manager.handleError(Error(Error::Type::Bad_return, n.production.row, n.production.pos));*/
         }
         else
         {
@@ -309,26 +304,13 @@ void SemanticAnaliser::checkSemantics(ast::Node &root)
 
         ++i;
     }
-    //block_st check
-    //  if          (is cond bool type, then procced with statements)
-    //  while       (is cond bool type, then procced with statements)
-    //  assignment  (decl check, type check)
-    //  return      (decl check, is returned type the same as func type)
-    //  s_variable  (varDecl)
-    //  anything else -> s_expr (decl check, type check)
 
-    //   checkStatement:
-    //      assignment & return & s_expr => typeUniformity
-    //      s_variable => varDecl
-    //      if & while => first_child -> typeUniformity == "bool", other children -> checkStatement
     closeScope();
 }
 
 std::string SemanticAnaliser::checkTypeUniformity(ast::Node &root)
 {
     std::string type = std::string();
-
-    //std::cout << "Prod: " << root.production.name << std::endl;
 
     if(root.production.name == "Function") 
     {
@@ -425,7 +407,7 @@ std::string SemanticAnaliser::checkVar(ast::Node &root)
 std::string SemanticAnaliser::extractFuncClass(ast::Node &root) //TODO
 {
     ast::Node &name_node = root.children[0];
-    if(name_node.children.size() == 0) return std::string();
+    if(name_node.children.size() == 0) return private_access;//std::string();
 
     std::string name = name_node.production.value;
     int line = name_node.production.row, pos = name_node.production.pos;
@@ -470,6 +452,54 @@ void SemanticAnaliser::declareClass(ast::Node &root)
     }
 
     private_access = std::string();
+}
+
+void SemanticAnaliser::produceWarnings()
+{
+    for(const auto &v : global_vars)
+    if(v.second.usage_count == 0) 
+        error_manager.handleError(Error(Error::Type::Unused_variable, v.second.line, v.second.pos));
+
+    for(const auto &f : global_funcs)
+    if(f.second.usage_count == 0) 
+    {
+        if(f.second.name == "main()") continue;
+        error_manager.handleError(Error(Error::Type::Unused_function, f.second.line, f.second.pos));
+    }
+        
+    for(const auto &c : classes)
+    {
+        if(c.second.name == "int" || c.second.name == "double" || c.second.name == "bool" || c.second.name == "void") continue;
+
+        if(c.second.usage_count == 0)
+            error_manager.handleError(Error(Error::Type::Unused_class, c.second.line, c.second.pos));
+
+        for(const auto &v : c.second.class_vars)
+        if(v.second.usage_count == 0) 
+            error_manager.handleError(Error(Error::Type::Unused_variable, v.second.line, v.second.pos));
+
+        for(const auto &v : c.second.private_vars)
+        if(v.second.usage_count == 0) 
+            error_manager.handleError(Error(Error::Type::Unused_variable, v.second.line, v.second.pos));
+
+        for(const auto &f : c.second.class_funcs)
+        if(f.second.usage_count == 0)
+        {
+            if(f.second.name.front() == '(')
+                error_manager.handleError(Error(Error::Type::Unused_constructor, f.second.line, f.second.pos));
+            else 
+                error_manager.handleError(Error(Error::Type::Unused_function, f.second.line, f.second.pos));
+        }
+
+        for(const auto &f : c.second.private_funcs)
+        if(f.second.usage_count == 0) 
+        {
+            if(f.second.name.front() == '(')
+                error_manager.handleError(Error(Error::Type::Unused_constructor, f.second.line, f.second.pos));
+            else 
+                error_manager.handleError(Error(Error::Type::Unused_function, f.second.line, f.second.pos));
+        }
+    }    
 }
 
 void SemanticAnaliser::analyse()
@@ -519,53 +549,22 @@ void SemanticAnaliser::analyse()
         std::cout << std::endl;
     }
 
-    for(const auto &v : global_vars)
-    if(v.second.usage_count == 0) 
-        error_manager.handleError(Error(Error::Type::Unused_variable, v.second.line, v.second.pos));
-
-    for(const auto &f : global_funcs)
-    if(f.second.usage_count == 0) 
-    {
-        if(f.second.name == "main()") continue;
-        error_manager.handleError(Error(Error::Type::Unused_function, f.second.line, f.second.pos));
-    }
-        
-
-    for(const auto &c : classes)
-    {
-        if(c.second.name == "int" || c.second.name == "double" || c.second.name == "bool" || c.second.name == "void") continue;
-
-        if(c.second.usage_count == 0)
-            error_manager.handleError(Error(Error::Type::Unused_class, c.second.line, c.second.pos));
-
-        for(const auto &v : c.second.class_vars)
-        if(v.second.usage_count == 0) 
-            error_manager.handleError(Error(Error::Type::Unused_variable, v.second.line, v.second.pos));
-
-        for(const auto &v : c.second.private_vars)
-        if(v.second.usage_count == 0) 
-            error_manager.handleError(Error(Error::Type::Unused_variable, v.second.line, v.second.pos));
-
-        for(const auto &f : c.second.class_funcs)
-        if(f.second.usage_count == 0)
-        {
-            if(f.second.name.front() == '(')
-                error_manager.handleError(Error(Error::Type::Unused_constructor, f.second.line, f.second.pos));
-            else 
-                error_manager.handleError(Error(Error::Type::Unused_function, f.second.line, f.second.pos));
-        }
-
-        for(const auto &f : c.second.private_funcs)
-        if(f.second.usage_count == 0) 
-        {
-            if(f.second.name.front() == '(')
-                error_manager.handleError(Error(Error::Type::Unused_constructor, f.second.line, f.second.pos));
-            else 
-                error_manager.handleError(Error(Error::Type::Unused_function, f.second.line, f.second.pos));
-        }
-    }
+    produceWarnings();
         
     std::vector<std::string> war = error_manager.getWarnings();
     for(std::string s : war)
         std::cout << s << std::endl;
 }
+
+    //block_st check
+    //  if          (is cond bool type, then procced with statements)
+    //  while       (is cond bool type, then procced with statements)
+    //  assignment  (decl check, type check)
+    //  return      (decl check, is returned type the same as func type)
+    //  s_variable  (varDecl)
+    //  anything else -> s_expr (decl check, type check)
+
+    //   checkStatement:
+    //      assignment & return & s_expr => typeUniformity
+    //      s_variable => varDecl
+    //      if & while => first_child -> typeUniformity == "bool", other children -> checkStatement

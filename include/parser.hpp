@@ -67,55 +67,6 @@ class Parser
         void class_content(ast::Node& n);
         void s_class(ast::Node& n);
         void program(ast::Node& n);
-/*
-        Token peekToken()
-        {
-            while(parser_position >= tokens.size()) tokens.push_back(lexer.getToken());
-
-            return tokens[parser_position];
-        }
-
-        Token getToken()
-        {
-            Token ret = peekToken();
-
-            ++parser_position;
-
-            return ret;
-        }
-
-        bool isToken(Token::Type expected)
-        {
-            return peekToken().getType() == expected;
-        }
-
-        bool acceptToken(Token::Type expected)
-        {
-            bool ret;
-            if(ret = isToken(expected)) getToken();
-
-            return ret;
-        }
-
-        void c_ident()
-        {
-            acceptToken(Token::Type::Ident);
-
-            if(isToken(Token::Type::Comma))
-            {
-                acceptToken(Token::Type::Comma);
-                acceptToken(Token::Type::Ident);
-            }
-        }
-
-        bool arithm_ele()
-        {
-            if(isToken(Token::Type::Plus) || isToken(Token::Type::Minus)) getToken();
-
-
-
-        }
-*/
 };
 
 #endif // PARSER_HPP_INCLUDED

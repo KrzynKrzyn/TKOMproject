@@ -39,7 +39,7 @@ int main()
 	fool f;
 	if(fool(2,3) == f)
 	{
-		return;
+		return 1;
 	}
 	else
 	{

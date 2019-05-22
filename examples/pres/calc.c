@@ -1,5 +1,5 @@
 bool abs;
-double a,b,a;
+double a,b;
 
 class Calc
 {

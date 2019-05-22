@@ -108,6 +108,8 @@ class SemanticAnaliser
 
         void checkSemantics(ast::Node &root);
 
+        void produceWarnings();
+
     public:
         void analyse();
 

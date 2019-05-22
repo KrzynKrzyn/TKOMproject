@@ -10,6 +10,7 @@
 //backtracking -> one parser member variable instead of current joggling between methods
 
 //check duplicates -> wrong error number
+//delete arg_types
 
 using namespace std;
 
