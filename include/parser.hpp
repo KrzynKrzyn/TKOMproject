@@ -13,6 +13,7 @@ class Parser
 {
     public:
         ast::Node parse();
+        void printAST();
 
         Parser(Lexer &l, ErrorManager &em);
 
@@ -67,6 +68,8 @@ class Parser
         void class_content(ast::Node& n);
         void s_class(ast::Node& n);
         void program(ast::Node& n);
+
+        ast::Node root = ast::Node("Root", 0, 0);
 };
 
 #endif // PARSER_HPP_INCLUDED

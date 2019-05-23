@@ -3,6 +3,11 @@ class example
     private:
         double val;
     public:
+	example()
+	{	
+		val = 8.5;
+	}
+
         double getVal()
         {
             return val;

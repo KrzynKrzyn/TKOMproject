@@ -5,11 +5,16 @@ using ast::Node;
 
 ast::Node Parser::parse()
 {
-    ast::Node root("Root", 0, 0);
+    root = ast::Node("Root", 0, 0);
 
     program(root);
 
     return root;
+}
+
+void Parser::printAST()
+{
+    root.printTree();
 }
 
 Parser::Parser(Lexer &l, ErrorManager &em): lexer(l), error_manager(em)
@@ -449,7 +454,7 @@ void Parser::block_st(ast::Node& n) //OK
 {
     acceptToken(Token::Type::OpenCurly);
 
-    while(!expectToken(Token::Type::CloseCurly)) simple_st(n);   //TBD
+    while(!expectToken(Token::Type::CloseCurly) && !expectToken(Token::Type::Eof)) simple_st(n);   //TBD
 
     acceptToken(Token::Type::CloseCurly);
 }

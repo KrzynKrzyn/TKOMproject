@@ -11,10 +11,8 @@ void SemanticAnaliser::closeScope()
     if(v.second.usage_count == 0) 
         error_manager.handleError(Error(Error::Type::Unused_variable, v.second.line, v.second.pos));
 
-    std::cout << "Closed scope vars: " << std::endl;
-    for(auto& i : scope_stack.back()) std::cout << '\t' << i.second.type << " " << i.second.name << "\tusage: " << i.second.usage_count << std::endl;
-    std::cout << std::endl;
-
+    //pushInfo("Closed scope variables", "No variables in closed scope", scope_stack.back());
+    
     scope_stack.pop_back();
 }
 
@@ -45,21 +43,6 @@ void SemanticAnaliser::checkDuplicates(Symbol sym, std::map<std::string, Class>&
         error_manager.handleError(Error(Error::Type::Multi_initialization, sym.line, sym.pos));  
 }
 
-/*
-void SemanticAnaliser::checkDuplicates(std::string sym, std::vector<std::map<std::string, Symbol>>& symbols)
-{
-    for(std::map<std::string, Symbol>& smap : symbols)
-        checkDuplicates(sym, smap);
-}
-
-void SemanticAnaliser::checkDuplicates(std::string sym, std::map<std::string, Symbol>& symbols)
-{
-    auto found = symbols.find(sym);
-    if(found != symbols.end()) 
-        error_manager.handleError(Error(Error::Type::Multi_initialization, found->second.line, found->second.pos));  
-}
-*/
-
 std::map<std::string, Var>::iterator SemanticAnaliser::getMemberVar(Symbol sym, std::string class_name)
 {
     std::map<std::string, Var>::iterator found;
@@ -78,7 +61,7 @@ std::map<std::string, Var>::iterator SemanticAnaliser::getMemberVar(Symbol sym, 
         return found;
     }
 
-    error_manager.handleError(Error(Error::Type::Uninitialized_variable, sym.line, sym.pos));   //TODO, private as uninitialized blargh, then again undeclared not uninitialized
+    error_manager.handleError(Error(Error::Type::Uninitialized_variable, sym.line, sym.pos));
 
     return found;
 }
@@ -249,7 +232,7 @@ void SemanticAnaliser::declareFunc(ast::Node &root, bool priv) //TODO CONSTRUCTO
         checkDuplicates(new_func, c.class_funcs);
         checkDuplicates(new_func, c.private_funcs);
 
-        if(!priv) c.class_funcs[new_func.name] = new_func; //std::move?
+        if(!priv) c.class_funcs[new_func.name] = new_func;
         else c.private_funcs[new_func.name] = new_func;
     }
     else
@@ -258,7 +241,6 @@ void SemanticAnaliser::declareFunc(ast::Node &root, bool priv) //TODO CONSTRUCTO
         global_funcs[new_func.name] = new_func;
     }
 
-    //and then statements
     checkSemantics(root);
 }
 
@@ -347,7 +329,7 @@ std::string SemanticAnaliser::checkType(ast::Node &root, std::string type_name)
     return ret;
 }
 
-std::string SemanticAnaliser::checkFunction(ast::Node &root)    //checkConstructor()
+std::string SemanticAnaliser::checkFunction(ast::Node &root)
 {
     Func used_func;
 
@@ -407,7 +389,7 @@ std::string SemanticAnaliser::checkVar(ast::Node &root)
 std::string SemanticAnaliser::extractFuncClass(ast::Node &root) //TODO
 {
     ast::Node &name_node = root.children[0];
-    if(name_node.children.size() == 0) return private_access;//std::string();
+    if(name_node.children.size() == 0) return private_access;
 
     std::string name = name_node.production.value;
     int line = name_node.production.row, pos = name_node.production.pos;
@@ -506,8 +488,6 @@ void SemanticAnaliser::analyse()
 {
     ast::Node root = std::move(parser.parse());
 
-    root.printTree();
-
     for(ast::Node &n : root.children) 
     {
         if(n.production.name == "Class") declareClass(n);
@@ -515,47 +495,81 @@ void SemanticAnaliser::analyse()
         if(n.production.name == "Variable declaration") declareVar(n);
     }
 
-    std::cout << "Global vars: " << std::endl;
-    for(auto& i : global_vars) std::cout << '\t' << i.second.type << " " << i.second.name << "\tusage: " << i.second.usage_count << std::endl;
-    std::cout << std::endl;
+    collectSymbolsInfo();
+    produceWarnings();
+}
 
-    std::cout << "Global Funcs: " << std::endl;
-    for(auto& i : global_funcs) std::cout << '\t' << i.second.type << " " << i.second.name << "\tusage: " << i.second.usage_count << std::endl;
-    std::cout << std::endl;
-    std::cout << std::endl;
+void SemanticAnaliser::pushInfo(std::string title, std::string empty_title, std::map<std::string, Var>& sym_map)
+{
+    std::vector<std::string> scope_info;
+    if(sym_map.size() > 0)
+    {
+        scope_info.push_back(title);
+        for(auto& i : sym_map) 
+            scope_info.push_back("Usage: " + std::to_string(i.second.usage_count) + '\t' + i.second.type + " " + i.second.name);
+    }
+    else scope_info.push_back(empty_title);
+    
+    analise_info.push_back(std::move(scope_info));
+}
+
+void SemanticAnaliser::pushInfo(std::string title, std::string empty_title, std::map<std::string, Func>& sym_map)
+{
+    std::vector<std::string> scope_info;
+    if(sym_map.size() > 0)
+    {
+        scope_info.push_back(title);
+        for(auto& i : sym_map) 
+            scope_info.push_back("Usage: " + std::to_string(i.second.usage_count) + '\t' + i.second.type + " " + i.second.name);
+    }
+    else scope_info.push_back(empty_title);
+    
+    analise_info.push_back(std::move(scope_info));
+}
+
+void SemanticAnaliser::pushInfo(std::string title, std::string empty_title, std::map<std::string, Class>& sym_map)
+{
+    std::vector<std::string> scope_info;
+    if(sym_map.size() > 4)
+    {
+        scope_info.push_back(title);
+        for(auto& c : sym_map)
+        {
+            if(c.second.name == "int" || c.second.name == "double" || c.second.name == "bool" || c.second.name == "void") continue;
+            scope_info.push_back("Usage: " + std::to_string(c.second.usage_count) + '\t' + c.second.name);
+        } 
+    }
+    else scope_info.push_back(empty_title);
+    
+    analise_info.push_back(std::move(scope_info));
+}
+
+void SemanticAnaliser::collectSymbolsInfo()
+{
+    pushInfo("Global variables", "No global variables", global_vars);
+    pushInfo("Global functions", "No global functions", global_funcs);
+    pushInfo("Classes", "No classes", classes);
 
     for(auto& c : classes)
     {
         if(c.second.name == "int" || c.second.name == "double" || c.second.name == "bool" || c.second.name == "void") continue;
 
-        std::cout << "Class: " << c.second.name << "\tusage: " << c.second.usage_count << std::endl;
-        std::cout << std::endl;
-
-        std::cout << "Public funcs: " << std::endl;
-        for(auto& i : c.second.class_funcs) std::cout << '\t' << i.second.type << " " << i.second.name << "\tusage: " << i.second.usage_count << std::endl;
-        std::cout << std::endl;
-
-        std::cout << "Private funcs: " << std::endl;
-        for(auto& i : c.second.private_funcs) std::cout << '\t' << i.second.type << " " << i.second.name << "\tusage: " << i.second.usage_count << std::endl;
-        std::cout << std::endl;
-
-        std::cout << "Public vars: " << std::endl;
-        for(auto& i : c.second.class_vars) std::cout << '\t' << i.second.type << " " << i.second.name << "\tusage: " << i.second.usage_count << std::endl;
-        std::cout << std::endl;
-
-        std::cout << "Private vars: " << std::endl;
-        for(auto& i : c.second.private_vars) std::cout << '\t' << i.second.type << " " << i.second.name << "\tusage: " << i.second.usage_count << std::endl;
-        std::cout << std::endl;
-        std::cout << std::endl;
+        pushInfo("Public functions (" + c.second.name + ")", "No public functions (" + c.second.name + ")", c.second.class_funcs);
+        pushInfo("Private functions (" + c.second.name + ")", "No private functions (" + c.second.name + ")", c.second.private_funcs);
+        pushInfo("Public variables (" + c.second.name + ")", "No public functions (" + c.second.name + ")", c.second.class_vars);
+        pushInfo("Private variables (" + c.second.name + ")", "No private variables(" + c.second.name + ")", c.second.private_vars);
     }
-
-    produceWarnings();
-        
-    std::vector<std::string> war = error_manager.getWarnings();
-    for(std::string s : war)
-        std::cout << s << std::endl;
 }
 
+void SemanticAnaliser::printAnaliseInfo()
+{
+    for(std::vector<std::string>& ov : analise_info)
+    {
+        std::cout << ov.front() << std::endl;
+        for(size_t i=1;i<ov.size();++i) std::cout << '\t' << ov[i] << std::endl;
+        std::cout << std::endl;
+    }
+}
     //block_st check
     //  if          (is cond bool type, then procced with statements)
     //  while       (is cond bool type, then procced with statements)

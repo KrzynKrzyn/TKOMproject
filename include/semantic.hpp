@@ -9,63 +9,57 @@
 
 //checkfor might need separation
 
-    struct Symbol
+struct Symbol
+{
+    std::string name;
+
+    int line, pos;
+
+    int usage_count = 0;
+
+    Symbol() {}
+    Symbol(std::string name_, int line_, int pos_): name(name_), line(line_), pos(pos_) {}
+};
+
+struct Var : Symbol
+{
+    std::string type;
+};
+
+struct Func : Symbol
+{
+    std::string type;
+    std::vector<std::string> arg_types;
+
+    std::string getPrototype() const
     {
-        std::string name;
-        //std::string type;
+        std::string func_proto = name + "(";
 
-        int line, pos;
+        for(std::string arg_type : arg_types)
+            func_proto = func_proto + arg_type + ",";
 
-        int usage_count = 0;
-/*
-        Symbol& operator=(const Symbol&) = default;
+        if(arg_types.size() > 0) func_proto.pop_back();
+        func_proto = func_proto + ")";
 
-        Symbol() = default;
-        Symbol(Symbol&) = default;
-        Symbol(Symbol&&) = default;*/
-        Symbol() {}
-        Symbol(std::string name_, int line_, int pos_): name(name_), line(line_), pos(pos_) {}
-    };
+        return func_proto;
+    }
+};
 
-    struct Var : Symbol
+struct Class : Symbol
+{
+    std::map<std::string, Var> class_vars;
+    std::map<std::string, Func> class_funcs;
+
+    std::map<std::string, Var> private_vars;
+    std::map<std::string, Func> private_funcs;
+
+    Class() = default;
+
+    Class(std::string name_)
     {
-        std::string type;
-    };
-
-    struct Func : Symbol
-    {
-        std::string type;
-        std::vector<std::string> arg_types;
-
-        std::string getPrototype() const
-        {
-            std::string func_proto = name + "(";
-
-            for(std::string arg_type : arg_types)
-                func_proto = func_proto + arg_type + ",";
-
-            if(arg_types.size() > 0) func_proto.pop_back();
-            func_proto = func_proto + ")";
-
-            return func_proto;
-        }
-    };
-
-    struct Class : Symbol
-    {
-        std::map<std::string, Var> class_vars;
-        std::map<std::string, Func> class_funcs;
-
-        std::map<std::string, Var> private_vars;
-        std::map<std::string, Func> private_funcs;
-
-        Class() = default;
-
-        Class(std::string name_)
-        {
-            name = name_;
-        }
-    };
+        name = name_;
+    }
+};
 
 class SemanticAnaliser
 {
@@ -110,13 +104,21 @@ class SemanticAnaliser
 
         void produceWarnings();
 
+        std::vector<std::vector<std::string>> analise_info;
+        void pushInfo(std::string title, std::string empty_title, std::map<std::string, Var>& sym_map);
+        void pushInfo(std::string title, std::string empty_title, std::map<std::string, Func>& sym_map);
+        void pushInfo(std::string title, std::string empty_title, std::map<std::string, Class>& sym_map);
+        void collectSymbolsInfo();
+
     public:
         void analyse();
+
+        void printAnaliseInfo();
 
         SemanticAnaliser(Parser &p, ErrorManager &em): parser(p), error_manager(em) 
         {
             classes = {
-                {"void", Class("void")},    //WAT?
+                {"void", Class("void")},
                 {"int", Class("int")},
                 {"double", Class("double")},
                 {"bool", Class("bool")}
