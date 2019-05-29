@@ -35,7 +35,10 @@ std::string ErrorManager::getMessage(Error err) const
     auto message = error_message.find(err.getType());
     if(message == error_message.end()) return "Unknown error";
 
-    return message->second;
+    if(err.getExtraInfo() != std::string()) 
+        return message->second + " (" + err.getExtraInfo() + ")";
+    else
+        return message->second;
 }
 
 std::string ErrorManager::getInfo(Error err) const

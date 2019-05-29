@@ -47,13 +47,19 @@ class Error
         int line;
         int position;
 
+        std::string extra_info;
+
         static std::map<Error::Type, Error::Severity> error_level;
 
     public:
-        Error(Type type_, int line_, int position_): type(type_), line(line_), position(position_) {}
+        //Error(Type type_, int line_, int position_):
+        //    type(type_), line(line_), position(position_) {}
+        Error(Type type_, int line_, int position_, std::string extra_info_ = std::string()):
+            type(type_), line(line_), position(position_), extra_info(extra_info_) {}
 
         Type getType() const { return type; }
         Severity getSeverity() const;
+        std::string getExtraInfo() const { return extra_info; }
 
         int getPosition() const { return position; }
         int getLine() const { return line; }

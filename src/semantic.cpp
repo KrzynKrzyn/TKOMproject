@@ -9,7 +9,7 @@ void SemanticAnaliser::closeScope()
 {
     for(const auto &v : scope_stack.back())
     if(v.second.usage_count == 0) 
-        error_manager.handleError(Error(Error::Type::Unused_variable, v.second.line, v.second.pos));
+        error_manager.handleError(Error(Error::Type::Unused_variable, v.second.line, v.second.pos, v.second.name));
 
     //pushInfo("Closed scope variables", "No variables in closed scope", scope_stack.back());
     
@@ -26,21 +26,21 @@ void SemanticAnaliser::checkDuplicates(Symbol sym, std::map<std::string, Var>& s
 {
     auto found = symbols.find(sym.name);
     if(found != symbols.end()) 
-        error_manager.handleError(Error(Error::Type::Multi_initialization, sym.line, sym.pos));  
+        error_manager.handleError(Error(Error::Type::Multi_initialization, sym.line, sym.pos, sym.name));  
 }
 
 void SemanticAnaliser::checkDuplicates(Symbol sym, std::map<std::string, Func>& symbols)
 {
     auto found = symbols.find(sym.name);
     if(found != symbols.end()) 
-        error_manager.handleError(Error(Error::Type::Multi_initialization, sym.line, sym.pos));  
+        error_manager.handleError(Error(Error::Type::Multi_initialization, sym.line, sym.pos, sym.name));  
 }
 
 void SemanticAnaliser::checkDuplicates(Symbol sym, std::map<std::string, Class>& symbols)
 {
     auto found = symbols.find(sym.name);
     if(found != symbols.end()) 
-        error_manager.handleError(Error(Error::Type::Multi_initialization, sym.line, sym.pos));  
+        error_manager.handleError(Error(Error::Type::Multi_initialization, sym.line, sym.pos, sym.name));  
 }
 
 std::map<std::string, Var>::iterator SemanticAnaliser::getMemberVar(Symbol sym, std::string class_name)
@@ -61,7 +61,7 @@ std::map<std::string, Var>::iterator SemanticAnaliser::getMemberVar(Symbol sym, 
         return found;
     }
 
-    error_manager.handleError(Error(Error::Type::Uninitialized_variable, sym.line, sym.pos));
+    error_manager.handleError(Error(Error::Type::Uninitialized_variable, sym.line, sym.pos, sym.name));
 
     return found;
 }
@@ -100,7 +100,7 @@ std::map<std::string, Var>::iterator SemanticAnaliser::getVar(Symbol sym, std::s
         return found;
     } 
 
-    error_manager.handleError(Error(Error::Type::Uninitialized_variable, sym.line, sym.pos));    //TODO
+    error_manager.handleError(Error(Error::Type::Uninitialized_variable, sym.line, sym.pos, sym.name));    //TODO
 
     return found;
 }
@@ -132,7 +132,7 @@ std::map<std::string, Func>::iterator SemanticAnaliser::getFunc(Symbol sym, std:
         return found;
     }
     
-    error_manager.handleError(Error(Error::Type::Uninitialized_function, sym.line, sym.pos));
+    error_manager.handleError(Error(Error::Type::Uninitialized_function, sym.line, sym.pos, sym.name));
 
     return found;
 }
@@ -147,7 +147,7 @@ std::map<std::string, Class>::iterator SemanticAnaliser::getClass(Symbol class_n
         return found;
     }
 
-    error_manager.handleError(Error(Error::Type::Uninitialized_class, class_name.line, class_name.pos));
+    error_manager.handleError(Error(Error::Type::Uninitialized_class, class_name.line, class_name.pos, class_name.name));
 
     return found;
 }
@@ -440,13 +440,13 @@ void SemanticAnaliser::produceWarnings()
 {
     for(const auto &v : global_vars)
     if(v.second.usage_count == 0) 
-        error_manager.handleError(Error(Error::Type::Unused_variable, v.second.line, v.second.pos));
+        error_manager.handleError(Error(Error::Type::Unused_variable, v.second.line, v.second.pos, v.second.name));
 
     for(const auto &f : global_funcs)
     if(f.second.usage_count == 0) 
     {
         if(f.second.name == "main()") continue;
-        error_manager.handleError(Error(Error::Type::Unused_function, f.second.line, f.second.pos));
+        error_manager.handleError(Error(Error::Type::Unused_function, f.second.line, f.second.pos, f.second.name));
     }
         
     for(const auto &c : classes)
@@ -454,32 +454,32 @@ void SemanticAnaliser::produceWarnings()
         if(c.second.name == "int" || c.second.name == "double" || c.second.name == "bool" || c.second.name == "void") continue;
 
         if(c.second.usage_count == 0)
-            error_manager.handleError(Error(Error::Type::Unused_class, c.second.line, c.second.pos));
+            error_manager.handleError(Error(Error::Type::Unused_class, c.second.line, c.second.pos, c.second.name));
 
         for(const auto &v : c.second.class_vars)
         if(v.second.usage_count == 0) 
-            error_manager.handleError(Error(Error::Type::Unused_variable, v.second.line, v.second.pos));
+            error_manager.handleError(Error(Error::Type::Unused_variable, v.second.line, v.second.pos, c.second.name + "::" + v.second.name));
 
         for(const auto &v : c.second.private_vars)
         if(v.second.usage_count == 0) 
-            error_manager.handleError(Error(Error::Type::Unused_variable, v.second.line, v.second.pos));
+            error_manager.handleError(Error(Error::Type::Unused_variable, v.second.line, v.second.pos, c.second.name + "::" + v.second.name));
 
         for(const auto &f : c.second.class_funcs)
         if(f.second.usage_count == 0)
         {
             if(f.second.name.front() == '(')
-                error_manager.handleError(Error(Error::Type::Unused_constructor, f.second.line, f.second.pos));
+                error_manager.handleError(Error(Error::Type::Unused_constructor, f.second.line, f.second.pos, c.second.name + f.second.name));
             else 
-                error_manager.handleError(Error(Error::Type::Unused_function, f.second.line, f.second.pos));
+                error_manager.handleError(Error(Error::Type::Unused_function, f.second.line, f.second.pos, c.second.name + "::" + f.second.name));
         }
 
         for(const auto &f : c.second.private_funcs)
         if(f.second.usage_count == 0) 
         {
             if(f.second.name.front() == '(')
-                error_manager.handleError(Error(Error::Type::Unused_constructor, f.second.line, f.second.pos));
+                error_manager.handleError(Error(Error::Type::Unused_constructor, f.second.line, f.second.pos, c.second.name + f.second.name));
             else 
-                error_manager.handleError(Error(Error::Type::Unused_function, f.second.line, f.second.pos));
+                error_manager.handleError(Error(Error::Type::Unused_function, f.second.line, f.second.pos, c.second.name + "::" + f.second.name));
         }
     }    
 }
